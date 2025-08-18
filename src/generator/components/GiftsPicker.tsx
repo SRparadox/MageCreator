@@ -2,10 +2,9 @@ import { Accordion, Badge, Button, Card, Grid, Group, ScrollArea, Stack, Text } 
 import { useEffect, useState } from "react"
 import ReactGA from "react-ga4"
 import { Character } from "../../data/Character"
-import { Gift, GiftType, gifts } from "../../data/Gifts"
+import { Gift, getGiftsByCategory } from "../../data/Gifts"
 import { globals } from "../../globals"
 import { upcase } from "../utils"
-import { GiftName } from "~/data/NameSchemas"
 
 type GiftsPickerProps = {
     character: Character
@@ -13,12 +12,23 @@ type GiftsPickerProps = {
     nextStep: () => void
 }
 
-const getAvailableGifts = (character: Character): Record<GiftName, GiftType> => {
-    const availableGifts: Record<string, GiftType> = {}
-    for (const n of character.availableGiftNames) {
-        availableGifts[n] = gifts[n]
+const getAvailableGifts = (character: Character): Gift[] => {
+    // Get all gifts that are available based on character's auspice and tribe
+    const availableGifts: Gift[] = []
+    
+    // Add gifts based on auspice
+    if (character.auspice) {
+        availableGifts.push(...getGiftsByCategory(character.auspice))
     }
-
+    
+    // Add gifts based on tribe  
+    if (character.tribe) {
+        availableGifts.push(...getGiftsByCategory(character.tribe))
+    }
+    
+    // Add native gifts (available to all Garou)
+    availableGifts.push(...getGiftsByCategory("Native"))
+    
     return availableGifts
 }
 
@@ -32,23 +42,23 @@ const GiftsPicker = ({ character, setCharacter, nextStep }: GiftsPickerProps) =>
 
     const allPickedGifts = pickedGifts
 
-    const giftsForTribe = getAvailableGifts(character)
+    const availableGifts = getAvailableGifts(character)
 
     const isPicked = (gift: Gift) => {
         return allPickedGifts.map((gift) => gift.name).includes(gift.name)
     }
 
-    const maxGiftsPerType = 2 // Werewolf characters typically start with 2 gifts per type
-    const canPickMoreGifts = (giftType: GiftName) => {
-        const currentCount = allPickedGifts.filter((p) => p.gift === giftType).length
-        return currentCount < maxGiftsPerType
+    const maxGiftsPerCategory = 2 // Werewolf characters typically start with 2 gifts per category
+    const canPickMoreGifts = (giftCategory: string) => {
+        const currentCount = allPickedGifts.filter((p) => p.category === giftCategory).length
+        return currentCount < maxGiftsPerCategory
     }
 
     const validToMove = pickedGifts.length >= 3 // Minimum 3 gifts to start
 
     const createGiftCard = (gift: Gift) => {
         const picked = isPicked(gift)
-        const disabled = picked || !canPickMoreGifts(gift.gift)
+        const disabled = picked || !canPickMoreGifts(gift.category)
 
         return (
             <Card key={gift.name} withBorder shadow="sm" style={{ opacity: disabled ? 0.5 : 1 }}>
@@ -58,7 +68,7 @@ const GiftsPicker = ({ character, setCharacter, nextStep }: GiftsPickerProps) =>
                             {gift.name}
                         </Text>
                         <Badge size="xs" color={picked ? "green" : "gray"}>
-                            Level {gift.level}
+                            {gift.renown}
                         </Badge>
                     </Group>
                     <Text size="xs" color="dimmed">
@@ -88,14 +98,23 @@ const GiftsPicker = ({ character, setCharacter, nextStep }: GiftsPickerProps) =>
                             
                             // Convert gifts to disciplines format for backward compatibility
                             const giftToDisciplineMap = {
-                                "rage": "potence",
-                                "wisdom": "auspex", 
-                                "war": "potence",
-                                "nature": "animalism",
-                                "technology": "obfuscate",
-                                "spirit": "auspex",
-                                "shadow": "obfuscate",
-                                "": ""
+                                "Native": "potence",
+                                "Ragabash": "obfuscate", 
+                                "Theurge": "auspex",
+                                "Philodox": "dominate",
+                                "Galliard": "presence",
+                                "Ahroun": "potence",
+                                "Black Furies": "celerity",
+                                "Bone Gnawers": "animalism",
+                                "Children of Gaia": "fortitude",
+                                "Galestalkers": "obfuscate",
+                                "Ghost Council": "auspex",
+                                "Glass Walkers": "obfuscate",
+                                "Hart Wardens": "animalism",
+                                "Red Talons": "animalism",
+                                "Shadow Lords": "dominate",
+                                "Silent Striders": "celerity",
+                                "Silver Fangs": "presence",
                             } as const
                             
                             const disciplinesFormat = newGifts.map(g => ({
@@ -103,15 +122,15 @@ const GiftsPicker = ({ character, setCharacter, nextStep }: GiftsPickerProps) =>
                                 description: g.description,
                                 summary: g.summary,
                                 dicePool: g.dicePool,
-                                level: g.level,
-                                discipline: giftToDisciplineMap[g.gift] || "",
+                                level: 1, // Default level for gifts
+                                discipline: giftToDisciplineMap[g.category] || "potence",
                                 rouseChecks: 0, // Gifts don't use rouse checks
                                 amalgamPrerequisites: [],
                             }))
                             
                             setCharacter({
                                 ...character,
-                                gifts: newGifts,
+                                gifts: disciplinesFormat, // Store as Power objects for compatibility
                                 disciplines: disciplinesFormat, // Keep for compatibility
                             })
 
@@ -130,28 +149,25 @@ const GiftsPicker = ({ character, setCharacter, nextStep }: GiftsPickerProps) =>
         )
     }
 
-    const createGiftTypeAccordion = (giftTypeName: GiftName, giftType: GiftType) => {
-        if (!giftType.powers.length) return null
+    const createCategoryAccordion = (categoryName: string, categoryGifts: Gift[]) => {
+        if (!categoryGifts.length) return null
 
-        const pickedCount = allPickedGifts.filter((p) => p.gift === giftTypeName).length
-        const maxCount = maxGiftsPerType
+        const pickedCount = allPickedGifts.filter((p) => p.category === categoryName).length
+        const maxCount = maxGiftsPerCategory
 
         return (
-            <Accordion.Item key={giftTypeName} value={giftTypeName}>
+            <Accordion.Item key={categoryName} value={categoryName}>
                 <Accordion.Control>
                     <Group position="apart">
-                        <Text weight={500}>{upcase(giftTypeName)} Gifts</Text>
+                        <Text weight={500}>{upcase(categoryName)} Gifts</Text>
                         <Badge color={pickedCount >= maxCount ? "green" : "blue"}>
                             {pickedCount}/{maxCount}
                         </Badge>
                     </Group>
-                    <Text size="sm" color="dimmed">
-                        {giftType.summary}
-                    </Text>
                 </Accordion.Control>
                 <Accordion.Panel>
                     <Grid>
-                        {giftType.powers.map((gift) => (
+                        {categoryGifts.map((gift) => (
                             <Grid.Col key={gift.name} span={smallScreen ? 12 : 6}>
                                 {createGiftCard(gift)}
                             </Grid.Col>
@@ -161,6 +177,15 @@ const GiftsPicker = ({ character, setCharacter, nextStep }: GiftsPickerProps) =>
             </Accordion.Item>
         )
     }
+
+    // Group gifts by category
+    const giftsByCategory: Record<string, Gift[]> = {}
+    availableGifts.forEach(gift => {
+        if (!giftsByCategory[gift.category]) {
+            giftsByCategory[gift.category] = []
+        }
+        giftsByCategory[gift.category].push(gift)
+    })
 
     const height = globals.viewportHeightPx
 
@@ -178,8 +203,8 @@ const GiftsPicker = ({ character, setCharacter, nextStep }: GiftsPickerProps) =>
 
                 <ScrollArea style={{ height: height - 200 }}>
                     <Accordion variant="contained" multiple>
-                        {Object.entries(giftsForTribe).map(([giftTypeName, giftType]) =>
-                            createGiftTypeAccordion(giftTypeName as GiftName, giftType)
+                        {Object.entries(giftsByCategory).map(([categoryName, categoryGifts]) =>
+                            createCategoryAccordion(categoryName, categoryGifts)
                         )}
                     </Accordion>
                 </ScrollArea>
