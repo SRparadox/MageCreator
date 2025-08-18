@@ -24,6 +24,8 @@ export const characterSchema = z.object({
     name: z.string(),
     description: z.string(),
     pack: z.string(), // Replaces 'sire'
+    concept: z.string(), // New Werewolf field
+    chronicle: z.string(), // New Werewolf field
 
     // Werewolf 5e specific fields
     tribe: tribeNameSchema, // Replaces 'clan'
@@ -83,6 +85,8 @@ export const getEmptyCharacter = (): Character => {
         name: "",
         description: "",
         pack: "", // Replaces sire
+        concept: "", // New Werewolf field
+        chronicle: "", // New Werewolf field
 
         // Werewolf fields
         tribe: "",

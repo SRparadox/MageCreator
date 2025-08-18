@@ -1,5 +1,5 @@
 import { Aside, Center, ScrollArea, Stepper } from "@mantine/core"
-import { Character, containsBloodSorcery } from "../data/Character"
+import { Character } from "../data/Character"
 import { isDefault, upcase } from "../generator/utils"
 import { globals } from "../globals"
 
@@ -11,15 +11,16 @@ export type AsideBarProps = {
 
 const AsideBar = ({ selectedStep, setSelectedStep, character }: AsideBarProps) => {
     // const smallScreen = globals.isSmallScreen
-    const maybeRituals = containsBloodSorcery(character.disciplines) ? ["rituals"] : []
+    // For now, always include rituals step if there are any gifts
+    const maybeRituals = character.disciplines.length > 0 ? ["rituals"] : []
     const stepperKeys = [
-        "clan",
+        "clan", // Maps to tribe
         "attributes",
-        "skills",
-        "generation",
-        "predatorType",
+        "skills", 
+        "generation", // Maps to auspice  
+        "auspice", // Will replace generation
         "name",
-        "disciplines",
+        "disciplines", // Maps to gifts
         ...maybeRituals,
         "touchstones",
         "merits",
@@ -50,9 +51,9 @@ const AsideBar = ({ selectedStep, setSelectedStep, character }: AsideBarProps) =
                 </Stepper.Step>
                 {stepperKeys.map((title) => {
                     let displayTitle = title === "clan" ? "Tribe" : upcase(title)
-                    if (title === "generation") displayTitle = "Auspice"
-                    if (title === "predatorType") displayTitle = "Predator Type" // Will be updated later
-                    if (title === "disciplines") displayTitle = "Gifts" // Will be updated later
+                    if (title === "generation") displayTitle = "Generation" // Keep for compatibility
+                    if (title === "auspice") displayTitle = "Auspice"
+                    if (title === "disciplines") displayTitle = "Gifts"
                     
                     return (
                         <Stepper.Step

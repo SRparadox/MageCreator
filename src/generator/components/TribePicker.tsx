@@ -2,7 +2,7 @@ import { Card, Center, Grid, Image, ScrollArea, Text, Title, useMantineTheme } f
 import { notifications } from "@mantine/notifications"
 import { useEffect } from "react"
 import ReactGA from "react-ga4"
-import { TribeName, tribeNameSchema, ClanName, DisciplineName } from "~/data/NameSchemas"
+import { TribeName, tribeNameSchema, DisciplineName } from "~/data/NameSchemas"
 import { Character } from "../../data/Character"
 import { tribes } from "../../data/Tribes"
 import { globals } from "../../globals"
@@ -36,7 +36,7 @@ const TribePicker = ({ character, setCharacter, nextStep }: TribePickerProps) =>
                     h={320}
                     style={{ background: bgColor, cursor: "pointer" }}
                     onClick={() => {
-                        if ((notDefault(character, "disciplines") || notDefault(character, "predatorType")) && tribe !== character.clan) {
+                        if ((notDefault(character, "gifts") || notDefault(character, "auspice")) && tribe !== character.tribe) {
                             notifications.show({
                                 title: "Reset Gifts",
                                 message: "Because you changed your tribe",
@@ -46,16 +46,22 @@ const TribePicker = ({ character, setCharacter, nextStep }: TribePickerProps) =>
 
                             setCharacter({
                                 ...character,
-                                clan: tribe as string as ClanName, // Temporary: tribe names as clan until Character schema is updated
-                                disciplines: [], // This will be renamed to gifts later
-                                availableDisciplineNames: tribes[tribe].gifts as string[] as DisciplineName[], // Temporary: gifts as disciplines
-                                predatorType: character.predatorType, // This will be renamed to auspice later
+                                tribe,
+                                clan: tribe, // For backward compatibility
+                                gifts: [],
+                                disciplines: [], // For backward compatibility
+                                availableGiftNames: tribes[tribe].gifts,
+                                availableDisciplineNames: tribes[tribe].gifts as string[] as DisciplineName[], // For compatibility
+                                auspice: character.auspice,
+                                predatorType: character.predatorType, // For compatibility
                             })
                         } else {
                             setCharacter({
                                 ...character,
-                                clan: tribe as string as ClanName, // Temporary: tribe names as clan until Character schema is updated
-                                availableDisciplineNames: tribes[tribe].gifts as string[] as DisciplineName[], // Temporary: gifts as disciplines
+                                tribe,
+                                clan: tribe, // For backward compatibility 
+                                availableGiftNames: tribes[tribe].gifts,
+                                availableDisciplineNames: tribes[tribe].gifts as string[] as DisciplineName[], // For compatibility
                             })
                         }
 
