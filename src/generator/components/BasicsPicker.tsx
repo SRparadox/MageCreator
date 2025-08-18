@@ -15,15 +15,14 @@ const BasicsPicker = ({ character, setCharacter, nextStep }: BasicsPickerProps) 
     }, [])
 
     const [name, setName] = useState(character.name)
-    const [sire, setSire] = useState(character.sire)
-    const [ambition, setAmbition] = useState(character.ambition)
-    const [desire, setDesire] = useState(character.desire)
+    const [concept, setConcept] = useState(character.concept)
+    const [chronicle, setChronicle] = useState(character.chronicle)
     const [description, setDescription] = useState(character.description)
 
     return (
         <div>
             <Text fw={700} fz={"30px"} ta="center">
-                Come up with the basics
+                Character Details
             </Text>
 
             <Stack mt={"xl"} align="center" spacing="xl">
@@ -31,40 +30,33 @@ const BasicsPicker = ({ character, setCharacter, nextStep }: BasicsPickerProps) 
                     style={{ width: "300px" }}
                     value={name}
                     onChange={(event) => setName(event.currentTarget.value)}
-                    placeholder="Erika Mustermann"
+                    placeholder="Luna Nightclaw"
                     label="Full name"
                 />
 
                 <TextInput
                     style={{ width: "300px" }}
-                    value={sire}
-                    onChange={(event) => setSire(event.currentTarget.value)}
-                    placeholder="Your sire"
-                    label="Sire"
-                    description="The vampire that turned you"
+                    value={concept}
+                    onChange={(event) => setConcept(event.currentTarget.value)}
+                    placeholder="Urban Shaman"
+                    label="Concept"
+                    description="A brief description of your character's role"
                 />
 
                 <TextInput
                     style={{ width: "300px" }}
-                    value={ambition}
-                    onChange={(event) => setAmbition(event.currentTarget.value)}
-                    placeholder="Break free from my sire's clutches"
-                    label="Your long term ambition"
-                />
-
-                <TextInput
-                    style={{ width: "300px" }}
-                    value={desire}
-                    onChange={(event) => setDesire(event.currentTarget.value)}
-                    placeholder="Embarrass my rival in court"
-                    label="Your short term desire"
+                    value={chronicle}
+                    onChange={(event) => setChronicle(event.currentTarget.value)}
+                    placeholder="The Howling Stones Chronicle"
+                    label="Chronicle"
+                    description="The name of your story/campaign"
                 />
 
                 <Textarea
                     style={{ width: "300px" }}
                     value={description}
                     onChange={(event) => setDescription(event.currentTarget.value)}
-                    placeholder="Young alt-rock musician with a black vegan-leather jacket and long black hair"
+                    placeholder="A fierce warrior with ritual scars and traditional tattoos, carrying the wisdom of the spirits"
                     label="Description & appearance of your character"
                     autosize
                     minRows={4}
@@ -73,7 +65,7 @@ const BasicsPicker = ({ character, setCharacter, nextStep }: BasicsPickerProps) 
                 <Button
                     color="grape"
                     onClick={() => {
-                        setCharacter({ ...character, name, sire, ambition, desire, description })
+                        setCharacter({ ...character, name, concept, chronicle, description })
                         nextStep()
                     }}
                 >
