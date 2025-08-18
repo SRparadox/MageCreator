@@ -138,10 +138,11 @@ const SkillsPicker = ({ character, setCharacter, nextStep }: SkillsPickerProps) 
                     science: 0,
                     technology: 0,
                 }
-                finalPick.special.forEach((special) => (skills[special] = 4))
-                finalPick.strongest.forEach((strongest) => (skills[strongest] = 3))
-                finalPick.decent.forEach((decent) => (skills[decent] = 2))
-                finalPick.acceptable.forEach((acceptable) => (skills[acceptable] = 1))
+                // Add safety checks for undefined arrays
+                if (finalPick.special) finalPick.special.forEach((special) => (skills[special] = 4))
+                if (finalPick.strongest) finalPick.strongest.forEach((strongest) => (skills[strongest] = 3))
+                if (finalPick.decent) finalPick.decent.forEach((decent) => (skills[decent] = 2))
+                if (finalPick.acceptable) finalPick.acceptable.forEach((acceptable) => (skills[acceptable] = 1))
 
                 setPickedSkills(finalPick)
                 setSkills(skills)

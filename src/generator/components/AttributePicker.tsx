@@ -67,7 +67,8 @@ const AttributePicker = ({ character, setCharacter, nextStep }: AttributePickerP
                 }
                 attributes[finalPick.strongest!] = 4
                 attributes[finalPick.weakest!] = 1
-                finalPick.medium.forEach((medium) => (attributes[medium] = 3))
+                // Add safety check for undefined array
+                if (finalPick.medium) finalPick.medium.forEach((medium) => (attributes[medium] = 3))
                 setCharacter({ ...character, attributes })
                 nextStep()
             }

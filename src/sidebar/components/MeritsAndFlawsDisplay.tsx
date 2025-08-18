@@ -12,13 +12,17 @@ const MeritsAndFlawsDisplay = ({ merits, flaws }: MeritsAndFlawsProps) => {
         fontFamily: "Courier New",
     }
 
+    // Safety checks to prevent undefined errors
+    const safeMerits = merits || []
+    const safeFlaws = flaws || []
+
     return (
         <Stack>
             <Title order={2}>Merits & Flaws</Title>
             <Grid>
                 <Grid.Col span={6}>
                     <List>
-                        {merits.map((merit) => {
+                        {safeMerits.map((merit) => {
                             return (
                                 <List.Item key={merit.name}>
                                     <Text c="green" style={textStyle}>
@@ -32,7 +36,7 @@ const MeritsAndFlawsDisplay = ({ merits, flaws }: MeritsAndFlawsProps) => {
 
                 <Grid.Col span={6}>
                     <List>
-                        {flaws.map((flaw) => {
+                        {safeFlaws.map((flaw) => {
                             return (
                                 <List.Item key={flaw.name}>
                                     <Text c="red" style={textStyle}>

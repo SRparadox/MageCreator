@@ -6,11 +6,14 @@ export type TouchstoneProps = {
 }
 
 const TouchstoneDisplay = ({ touchstones }: TouchstoneProps) => {
+    // Safety check to prevent undefined errors
+    const safeTouchstones = touchstones || []
+
     return (
         <Stack>
             <Title order={2}>Touchstones</Title>
             <List>
-                {touchstones.map((stone, i) => {
+                {safeTouchstones.map((stone, i) => {
                     return (
                         <List.Item key={i}>
                             <Text>

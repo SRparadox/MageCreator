@@ -21,7 +21,11 @@ const DisciplineDisplay = ({ powers, rituals }: DisciplinesProps) => {
         }
     }
     
-    powers.forEach((power) => {
+    // Safety check to prevent undefined errors
+    const safePowers = powers || []
+    const safeRituals = rituals || []
+    
+    safePowers.forEach((power) => {
         const category = getCategory(power)
         if (!powersByDisciplines.has(category)) {
             powersByDisciplines.set(category, [power])
@@ -42,7 +46,7 @@ const DisciplineDisplay = ({ powers, rituals }: DisciplinesProps) => {
                                     return <List.Item key={power.name}>{power.name}</List.Item>
                                 })}
                                 {categoryName === "spirit" // Show rituals for spirit gifts
-                                    ? rituals.map((ritual) => {
+                                    ? safeRituals.map((ritual) => {
                                           return (
                                               <List.Item ml={"-3px"} icon={"⛤"} key={ritual.name}>
                                                   {ritual.name}

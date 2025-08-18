@@ -36,12 +36,18 @@ export const testTemplate = async (basePdf: string) => {
     try {
         form.getTextField("Name").setText("")
         form.getTextField("Concept").setText("")
-        form.getTextField("Predator").setText("")
-        form.getTextField("Ambition").setText("")
+        // Try werewolf fields first, fallback to vampire fields for compatibility
+        try {
+            form.getTextField("Tribe").setText("")
+            form.getTextField("Chronicle").setText("")
+        } catch (e) {
+            form.getTextField("Predator").setText("")
+            form.getTextField("Ambition").setText("")
+        }
     } catch (err) {
         return {
             success: false,
-            error: new Error("PDF doesn't contain required fields - is it v5_charactersheet_fillable_v3.pdf from renegadegamestudios?"),
+            error: new Error("PDF doesn't contain required fields - is it the correct Werewolf character sheet?"),
         }
     }
 
@@ -76,7 +82,7 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
 
     // Skills
     const setSpecialty = (skillName: SkillsKey, textFieldKey: string) => {
-        const specialties = character.skillSpecialties
+        const specialties = (character.skillSpecialties || [])
             .filter((s) => s.skill === skillName)
             .filter((s) => s.name !== "")
             .map((s) => s.name)
@@ -287,7 +293,7 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
         return text
     }
 
-    const powersByDiscipline = character.disciplines.reduce(
+    const powersByDiscipline = (character.disciplines || []).reduce(
         (acc, p) => {
             if (!acc[p.discipline]) acc[p.discipline] = []
             acc[p.discipline].push(p)
@@ -305,7 +311,7 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
             form.getCheckBox(`Disc${di}-${pi}`).check()
         }
         if (powers[0].discipline === "blood sorcery") {
-            for (const [ritualIndex, ritual] of character.rituals.entries()) {
+            for (const [ritualIndex, ritual] of (character.rituals || []).entries()) {
                 const ri = powers.length + ritualIndex + 1
                 form.getTextField(`Disc${di}_Ability${ri}`).setText(getGiftText(ritual))
                 form.getTextField(`Disc${di}_Ability${ri}`).disableRichFormatting()
@@ -329,7 +335,7 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
 
     // Touchstones & Convictions
     form.getTextField("Convictions").setText(
-        character.touchstones.map(({ name, description, conviction }) => `${name}: ${conviction}\n${description}`).join("\n\n")
+        (character.touchstones || []).map(({ name, description, conviction }) => `${name}: ${conviction}\n${description}`).join("\n\n")
     )
 
     // Experience

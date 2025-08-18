@@ -66,8 +66,9 @@ function App() {
                 </Header>
             }
             aside={showAsideBar ? <AsideBar selectedStep={selectedStep} setSelectedStep={setSelectedStep} character={character} /> : <></>}
-            styles={(theme) => ({
-                main: { backgroundColor: theme.colorScheme === "dark" ? theme.colors.dark[8] : theme.colors.gray[0] },
+            styles={() => ({
+                main: { backgroundColor: "transparent" },
+                root: { backgroundColor: "transparent" },
             })}
         >
             {

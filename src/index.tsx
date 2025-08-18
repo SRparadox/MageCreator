@@ -13,14 +13,27 @@ const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement)
 const GA4_MEASUREMENT_ID = import.meta.env.VITE_GA4_MEASUREMENT_ID
 
 if (GA4_MEASUREMENT_ID) {
-    ReactGA.initialize(GA4_MEASUREMENT_ID)
+    try {
+        ReactGA.initialize(GA4_MEASUREMENT_ID)
+    } catch (error) {
+        console.warn("GA4 initialization failed:", error)
+    }
 } else {
-    console.error("Failed to load GA4 measurement id!")
+    console.warn("GA4 measurement ID not found - analytics disabled")
 }
 
 root.render(
     <React.StrictMode>
-        <MantineProvider theme={{ colorScheme: "dark" }} withGlobalStyles withNormalizeCSS>
+        <MantineProvider
+            theme={{ 
+                colorScheme: "dark",
+                other: {
+                    backgroundColor: '#1a1b1e'
+                }
+            }}
+            withGlobalStyles 
+            withNormalizeCSS
+        >
             <Notifications position="bottom-center" />
             <App />
         </MantineProvider>
