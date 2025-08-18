@@ -2,26 +2,14 @@ import { notifications } from "@mantine/notifications"
 import fontkit from "@pdf-lib/fontkit"
 import { PDFBool, PDFDocument, PDFFont, PDFForm, PDFName } from "pdf-lib"
 import { Character } from "../data/Character"
-import { clans } from "../data/Clans"
 import { tribes } from "../data/Tribes"
-import { PredatorTypes } from "../data/PredatorType"
 import { SkillsKey, skillsKeySchema } from "../data/Skills"
-import checkPng from "../resources/CheckSolid.png"
-// import base64Pdf_renegade from '../resources/v5_charactersheet_fillable_v3.base64';
 import { attributesKeySchema } from "../data/Attributes"
-import { Power, Ritual, powerIsRitual } from "../data/Disciplines"
+import { Power, Ritual } from "../data/Disciplines"
+import { Gift } from "../data/Gifts"
 import base64Pdf_werewolf from "../resources/WerewolfSheet.base64?raw"
 import { upcase } from "./utils"
 import { DisciplineName } from "~/data/NameSchemas"
-
-type BloodPotencyEffect = {
-    surge: number
-    mend: string
-    discBonus: string
-    discRouse: string
-    bane: number
-    penalty: string
-}
 
 let customFont: PDFFont
 
@@ -69,44 +57,6 @@ const downloadPdf = (fileName: string, bytes: Uint8Array) => {
     link.click()
 }
 
-const potencyEffects: Record<number, BloodPotencyEffect> = {
-    0: { surge: 1, mend: "1 superficial", discBonus: "-", discRouse: "-", bane: 0, penalty: "-" },
-    1: { surge: 2, mend: "1 superficial", discBonus: "-", discRouse: "Lvl 1", bane: 2, penalty: "-" },
-    2: {
-        surge: 2,
-        mend: "2 superficial",
-        discBonus: "Add 1 die",
-        discRouse: "Lvl 1",
-        bane: 2,
-        penalty: "Animal and bagged blood slake half Hunger",
-    },
-    3: {
-        surge: 3,
-        mend: "2 superficial",
-        discBonus: "Add 1 die",
-        discRouse: "Lvl 2 and below",
-        bane: 3,
-        penalty: "Animal and bagged blood slake no Hunger",
-    },
-    4: {
-        surge: 3,
-        mend: "3 superficial",
-        discBonus: "Add 2 dice",
-        discRouse: "Lvl 2 and below",
-        bane: 3,
-        penalty: "Animal and bagged blood slake no Hunger,\nSlake 1 less Hunger per human",
-    },
-    5: {
-        surge: 4,
-        mend: "3 superficial",
-        discBonus: "Add 2 dice",
-        discRouse: "Lvl 3 and below",
-        bane: 4,
-        penalty:
-            "Animal and bagged blood slake no Hunger,\nSlake 1 less Hunger per human,\nMust drain and kill a human to reduce Hunger below 2",
-    },
-}
-
 const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => {
     const bytes = base64ToArrayBuffer(base64Pdf_werewolf)
 
@@ -126,13 +76,12 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
 
     // Skills
     const setSpecialty = (skillName: SkillsKey, textFieldKey: string) => {
-        const allSpecialties = [...character.skillSpecialties, ...character.predatorType.pickedSpecialties]
-        const specialties = allSpecialties
+        const specialties = character.skillSpecialties
             .filter((s) => s.skill === skillName)
             .filter((s) => s.name !== "")
             .map((s) => s.name)
 
-        if (specialties) form.getTextField(textFieldKey).setText(specialties.join(", "))
+        if (specialties.length > 0) form.getTextField(textFieldKey).setText(specialties.join(", "))
     }
 
     const skills = character.skills
@@ -205,12 +154,8 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
             setSpecialty(skill, `spec${upcase(skill).slice(0, 4)}`)
         })
 
-    // Health
-    let health = 3 + character.attributes["stamina"]
-    if (character.disciplines.find((power) => power.name === "Resilience")) {
-        const fortitudeLevel = character.disciplines.filter((power) => power.discipline === "fortitude").length
-        health += fortitudeLevel
-    }
+    // Health - Werewolf health calculation
+    const health = 3 + character.attributes["stamina"]
     for (let i = 1; i <= health; i++) {
         form.getCheckBox(`Health-${i}`).check()
     }
@@ -221,74 +166,79 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
         form.getCheckBox(`WP-${i}`).check()
     }
 
-    // Blood Potency
-    let bloodPotency = (() => {
-        switch (character.generation) {
-            case 16:
-            case 15:
-            case 14:
-                return 0
-            case 13:
-            case 12:
-                return 1
-            case 11:
-            case 10:
-                return 2
-            default:
-                return 1
+    // Rage (Werewolf stat)
+    const rage = character.rage || 1
+    for (let i = 1; i <= rage; i++) {
+        try {
+            form.getCheckBox(`Rage-${i}`).check()
+        } catch (e) {
+            // If Rage fields don't exist in PDF, skip
         }
-    })()
-    bloodPotency += PredatorTypes[character.predatorType.name].bloodPotencyChange
-    for (let i = 1; i <= bloodPotency; i++) {
-        form.getCheckBox(`BloodPotency-${i}`).check()
     }
 
-    const effects = potencyEffects[bloodPotency]
-    form.getTextField("BloodSurge").setText(`${effects.surge}`)
-    form.getTextField("Mend").setText(effects.mend)
-    form.getTextField("PowBonus").setText(effects.discBonus)
-    form.getTextField("ReRouse").setText(effects.discRouse)
-    form.getTextField("FeedPen").setText(effects.penalty)
-    form.getTextField("BaneSev").setText(`${effects.bane}`)
-
-    //Humanity
-    const humanity = 7 + PredatorTypes[character.predatorType.name].humanityChange
-    const checkImageBytes = await fetch(checkPng).then((res) => res.arrayBuffer())
-    const checkImage = await pdfDoc.embedPng(checkImageBytes)
-    for (let i = 1; i <= humanity; i++) {
-        // Broken by setting "NeedAppearances" to true
-        form.getButton(`Humanity-${i}`).setImage(checkImage)
+    // Gnosis (Werewolf stat) 
+    const gnosis = character.gnosis || 1
+    for (let i = 1; i <= gnosis; i++) {
+        try {
+            form.getCheckBox(`Gnosis-${i}`).check()
+        } catch (e) {
+            // If Gnosis fields don't exist in PDF, skip
+        }
     }
 
-    // Top fields
+    // Top fields - Werewolf character info
     form.getTextField("Name").setText(character.name)
-    // form.getTextField("Name").updateAppearances(customFont)
     form.getTextField("pcDescription").setText(character.description)
-    form.getTextField("Predator type").setText(character.predatorType.name)
-    form.getTextField("Ambition").setText(character.ambition)
+    
+    // New Werewolf fields replacing vampire fields
+    try {
+        form.getTextField("Concept").setText(character.concept || "")
+    } catch (e) {
+        // Fallback if Concept field doesn't exist
+        form.getTextField("Predator type")?.setText(character.concept || "")
+    }
+    
+    try {
+        form.getTextField("Chronicle").setText(character.chronicle || "")
+    } catch (e) {
+        // Fallback if Chronicle field doesn't exist  
+        form.getTextField("Ambition")?.setText(character.chronicle || "")
+    }
 
     // Set tribe name - try "Tribe" field first, fallback to "Clan"
+    const tribeName = character.tribe || character.clan
     try {
-        form.getTextField("Tribe")?.setText(character.clan)
+        form.getTextField("Tribe")?.setText(tribeName)
     } catch (e) {
-        form.getTextField("Clan")?.setText(character.clan)
+        form.getTextField("Clan")?.setText(tribeName)
+    }
+    
+    // Set auspice - try "Auspice" field first, fallback to predator type field
+    const auspiceName = character.auspice || character.predatorType.name
+    try {
+        form.getTextField("Auspice")?.setText(auspiceName)
+    } catch (e) {
+        form.getTextField("Predator")?.setText(auspiceName)
     }
     
     // For werewolf, we use ban and favor instead of bane and compulsion
-    if (character.clan && tribes[character.clan as keyof typeof tribes]) {
-        const tribe = tribes[character.clan as keyof typeof tribes]
+    if (tribeName && tribes[tribeName as keyof typeof tribes]) {
+        const tribe = tribes[tribeName as keyof typeof tribes]
         const banText = tribe.ban
         const favorText = tribe.favor
+        const patronText = tribe.patron || ""
         
         // Try to set tribe-specific fields, fall back to clan fields if werewolf sheet doesn't have them yet
         try {
             form.getTextField("TribeBan")?.setText(banText)
             form.getTextField("TribeFavor")?.setText(favorText)
+            form.getTextField("Patron")?.setText(patronText)
         } catch (e) {
             // Fallback to original clan fields if werewolf sheet isn't ready
             try {
                 form.getTextField("ClanBane")?.setText(banText)
                 form.getTextField("ClanCompulsion")?.setText(favorText)
+                form.getTextField("Sire")?.setText(patronText)
             } catch (e2) {
                 // If neither work, just continue
             }
@@ -305,21 +255,32 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
         }
     }
 
-    form.getTextField("Sire").setText(character.sire)
-    form.getTextField("Desire").setText(character.desire)
-    form.getTextField("Title").setText(`${character.generation}`) // Yes, "Title" is the generation field
+    // Pack info instead of sire
+    try {
+        form.getTextField("Pack").setText(character.pack || "")
+    } catch (e) {
+        // Fallback to Sire field if Pack doesn't exist
+        form.getTextField("Sire")?.setText(character.pack || "")
+    }
 
-    // Disciplines
-    const getDisciplineText = (power: Power | Ritual) => {
+    // Gifts (mapped to disciplines for PDF compatibility)
+    const getGiftText = (power: Power | Ritual | Gift) => {
         let text = power.name + ": " + power.summary
         if (power.dicePool !== "") {
             text += ` // ${power.dicePool}`
         }
-        if (power.rouseChecks > 0) {
+        
+        // Handle different power types
+        if ('cost' in power) {
+            // It's a Gift
+            text += ` // ${power.cost}`
+        } else if ('rouseChecks' in power && power.rouseChecks > 0) {
+            // It's a Discipline Power
             text += ` // ${power.rouseChecks} rouse check${power.rouseChecks > 1 ? "s" : ""}`
         }
 
-        if (powerIsRitual(power)) {
+        if ('requiredTime' in power && 'ingredients' in power) {
+            // It's a ritual
             text += ` // requires: ${power.ingredients}; ${power.requiredTime}`
         }
 
@@ -339,31 +300,30 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
         form.getTextField(`Disc${di}`).setText(upcase(powers[0].discipline))
         for (const [powerIndex, power] of powers.entries()) {
             const pi = powerIndex + 1
-            form.getTextField(`Disc${di}_Ability${pi}`).setText(getDisciplineText(power))
+            form.getTextField(`Disc${di}_Ability${pi}`).setText(getGiftText(power))
             form.getTextField(`Disc${di}_Ability${pi}`).disableRichFormatting()
             form.getCheckBox(`Disc${di}-${pi}`).check()
         }
         if (powers[0].discipline === "blood sorcery") {
             for (const [ritualIndex, ritual] of character.rituals.entries()) {
                 const ri = powers.length + ritualIndex + 1
-                form.getTextField(`Disc${di}_Ability${ri}`).setText(getDisciplineText(ritual))
+                form.getTextField(`Disc${di}_Ability${ri}`).setText(getGiftText(ritual))
                 form.getTextField(`Disc${di}_Ability${ri}`).disableRichFormatting()
             }
         }
     }
 
-    // Merits & flaws
-    const characterMeritsFlaws = [...character.merits, ...character.flaws]
-    const predatorTypeMeritsFlaws = PredatorTypes[character.predatorType.name].meritsAndFlaws.filter(
-        (m) => !characterMeritsFlaws.map((cm) => cm.name).includes(m.name)
-    )
-    const pickedPredatorTypeMeritsFlaws = character.predatorType.pickedMeritsAndFlaws
-    const meritsAndFlaws = [...predatorTypeMeritsFlaws, ...pickedPredatorTypeMeritsFlaws, ...characterMeritsFlaws]
+    // Merits & flaws - simplified for Werewolf
+    const meritsAndFlaws = [...character.merits, ...character.flaws]
     meritsAndFlaws.forEach(({ name, level, summary }, i) => {
         const fieldNum = i + 1
         form.getTextField(`Merit${fieldNum}`).setText(name + ": " + summary)
         for (let l = 1; l <= level; l++) {
-            form.getCheckBox(`Merit${fieldNum}-${l}`).check()
+            try {
+                form.getCheckBox(`Merit${fieldNum}-${l}`).check()
+            } catch (e) {
+                // If checkbox doesn't exist, skip
+            }
         }
     })
 
