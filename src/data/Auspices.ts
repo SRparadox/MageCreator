@@ -12,6 +12,8 @@ export const auspiceSchema = z.object({
     description: z.string(),
     logo: z.string(),
     role: z.string(),
+    renown: z.enum(["Glory", "Honor", "Wisdom"]),
+    gifts: z.string().array(),
 })
 export type Auspice = z.infer<typeof auspiceSchema>
 export const auspiceKeySchema = auspiceSchema.keyof()
@@ -24,6 +26,8 @@ export const auspices: Record<AuspiceName, Auspice> = {
         description: "Questioners of tradition, Gadflies of the Garou",
         logo: ragabashLogo,
         role: "Trickster and questioner of the old ways",
+        renown: "Wisdom",
+        gifts: ["Blissful Ignorance", "Crow's Laughter", "Gremlins", "Spider's Song"],
     },
     "Theurge": {
         name: "Theurge",
@@ -31,6 +35,8 @@ export const auspices: Record<AuspiceName, Auspice> = {
         description: "Spirit-talkers, Visionaries, and Ritualists",
         logo: theurgeLogo,
         role: "Mystic and spirit-speaker",
+        renown: "Wisdom",
+        gifts: ["Ensnare Spirit", "Mother's Touch", "Shadow Sense", "Sight from Beyond"],
     },
     "Philodox": {
         name: "Philodox",
@@ -38,6 +44,8 @@ export const auspices: Record<AuspiceName, Auspice> = {
         description: "Judges and Arbiters of the Garou",
         logo: philodoxLogo,
         role: "Judge and keeper of the law",
+        renown: "Honor",
+        gifts: ["Ancestral Conviction", "Gaia's Candor", "Porcupine's Reprisal", "Sense the True Form"],
     },
     "Galliard": {
         name: "Galliard",
@@ -45,6 +53,8 @@ export const auspices: Record<AuspiceName, Auspice> = {
         description: "Storytellers, Lorekeepers, and Heralds",
         logo: galliardLogo,
         role: "Storyteller and keeper of history",
+        renown: "Glory",
+        gifts: ["Animal Magnetism", "Howl of Assembly", "Song of Rage", "Song of Serenity"],
     },
     "Ahroun": {
         name: "Ahroun",
@@ -52,6 +62,8 @@ export const auspices: Record<AuspiceName, Auspice> = {
         description: "Warriors and Champions",
         logo: ahrounLogo,
         role: "Warrior and protector",
+        renown: "Glory",
+        gifts: ["Halt the Coward's Flight", "Rapid Shift", "Razor Claws", "Sense Danger"],
     },
     "": {
         name: "",
@@ -59,5 +71,7 @@ export const auspices: Record<AuspiceName, Auspice> = {
         description: "",
         logo: "",
         role: "",
+        renown: "Honor",
+        gifts: [],
     },
 }

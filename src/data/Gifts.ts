@@ -1,364 +1,322 @@
 import { z } from "zod"
-import { giftNameSchema, GiftName } from "./NameSchemas"
 
-// Using same structure as disciplines/powers for compatibility
+export const renownTypeSchema = z.enum(["Glory", "Honor", "Wisdom"])
+export type RenownType = z.infer<typeof renownTypeSchema>
+
+export const giftCategorySchema = z.enum(["Native", "Ragabash", "Theurge", "Philodox", "Galliard", "Ahroun", "Black Furies", "Bone Gnawers", "Children of Gaia", "Galestalkers", "Ghost Council", "Glass Walkers", "Hart Wardens", "Red Talons", "Shadow Lords", "Silent Striders", "Silver Fangs"])
+export type GiftCategory = z.infer<typeof giftCategorySchema>
+
 export const giftSchema = z.object({
     name: z.string(),
-    description: z.string(),
+    category: giftCategorySchema,
+    renown: renownTypeSchema,
     summary: z.string(),
+    description: z.string(),
     dicePool: z.string(),
-    level: z.number().min(1).int(),
-    gift: giftNameSchema, // Gift type (Rage, Wisdom, etc.)
-    cost: z.string(), // Rage/Gnosis cost
+    cost: z.string(),
     duration: z.string(),
 })
 export type Gift = z.infer<typeof giftSchema>
 
-export const giftTypeSchema = z.object({
-    tribes: z.string().array(),
-    summary: z.string(),
-    logo: z.string(),
-    powers: giftSchema.array(),
-})
-export type GiftType = z.infer<typeof giftTypeSchema>
+// Native Gifts (pp. 146-147)
+export const nativeGifts: Gift[] = [
+    {
+        name: "Catfeet",
+        category: "Native",
+        renown: "Honor",
+        summary: "Gain a supernatural sense of balance",
+        description: "The Garou gains perfect balance and can walk on narrow surfaces without falling.",
+        dicePool: "Dexterity + Athletics",
+        cost: "None",
+        duration: "Scene"
+    },
+    {
+        name: "Eyes of the Owl",
+        category: "Native", 
+        renown: "Wisdom",
+        summary: "See in the dark",
+        description: "The Garou can see clearly in complete darkness as if it were daylight.",
+        dicePool: "Wits + Awareness",
+        cost: "None",
+        duration: "Scene"
+    },
+    {
+        name: "Hare's Leap",
+        category: "Native",
+        renown: "Glory", 
+        summary: "Leap great distances",
+        description: "The Garou can leap superhuman distances in any form.",
+        dicePool: "Strength + Athletics",
+        cost: "1 Rage",
+        duration: "One jump"
+    },
+    {
+        name: "Penumbral Senses",
+        category: "Native",
+        renown: "Wisdom",
+        summary: "Perceive the spirit and mundane worlds",
+        description: "The Garou can perceive both the physical and spirit worlds simultaneously.",
+        dicePool: "Wits + Awareness",
+        cost: "None", 
+        duration: "Scene"
+    },
+    {
+        name: "Raging Strike",
+        category: "Native",
+        renown: "Glory",
+        summary: "Deal extra damage with Brawl attacks",
+        description: "The Garou's unarmed attacks deal additional damage when enraged.",
+        dicePool: "Strength + Brawl",
+        cost: "1 Rage",
+        duration: "One attack"
+    },
+    {
+        name: "Staredown",
+        category: "Native",
+        renown: "Honor",
+        summary: "Cause humans and animals to get out of your way",
+        description: "The Garou can intimidate humans and animals into backing down or fleeing.",
+        dicePool: "Presence + Intimidation",
+        cost: "None",
+        duration: "Scene"
+    }
+]
 
-// Werewolf gifts organized by type
-export const gifts: Record<GiftName, GiftType> = {
-    rage: {
-        tribes: ["All"],
-        summary: "Channel fury and primal instincts",
-        logo: "",
-        powers: [
-            {
-                name: "Primal Urge",
-                description: "Channel your raw fury to enhance physical capabilities",
-                summary: "Add Rage to Strength or Stamina rolls for one scene",
-                dicePool: "Stamina + Primal Instinct",
-                level: 1,
-                gift: "rage",
-                cost: "1 Rage",
-                duration: "One scene",
-            },
-            {
-                name: "Resist Pain",
-                description: "Ignore the distracting effects of injury",
-                summary: "Ignore wound penalties for one scene",
-                dicePool: "Stamina + Primal Instinct",
-                level: 1,
-                gift: "rage",
-                cost: "1 Rage",
-                duration: "One scene",
-            },
-            {
-                name: "Razor Claws",
-                description: "Extend razor-sharp claws capable of rending flesh and armor",
-                summary: "Gain lethal natural weapons that ignore 2 points of armor",
-                dicePool: "",
-                level: 2,
-                gift: "rage",
-                cost: "1 Rage",
-                duration: "One scene",
-            },
-            {
-                name: "Berserk",
-                description: "Enter a controlled frenzy of destruction",
-                summary: "Double dice pool for physical actions but cannot use social skills",
-                dicePool: "Rage + Primal Instinct",
-                level: 3,
-                gift: "rage",
-                cost: "2 Rage",
-                duration: "One scene",
-            },
-        ],
+// Ragabash Gifts (pp. 149-150)
+export const ragabashGifts: Gift[] = [
+    {
+        name: "Blissful Ignorance",
+        category: "Ragabash",
+        renown: "Wisdom",
+        summary: "Stand unseen",
+        description: "The Garou becomes effectively invisible to casual observation.",
+        dicePool: "Wits + Stealth",
+        cost: "1 Gnosis",
+        duration: "Scene"
     },
-    wisdom: {
-        tribes: ["All"],
-        summary: "Ancient knowledge and spiritual insight",
-        logo: "",
-        powers: [
-            {
-                name: "Spirit Speech",
-                description: "Communicate with spirits in the spirit world",
-                summary: "Speak with spirits and understand their communications",
-                dicePool: "Manipulation + Occult",
-                level: 1,
-                gift: "wisdom",
-                cost: "1 Gnosis",
-                duration: "One scene",
-            },
-            {
-                name: "Sense Wyrm",
-                description: "Detect the taint of the Wyrm in people, places, or objects",
-                summary: "Sense corruption and evil within 100 feet",
-                dicePool: "Perception + Occult",
-                level: 1,
-                gift: "wisdom",
-                cost: "1 Gnosis",
-                duration: "Instant",
-            },
-            {
-                name: "Truth of Gaia",
-                description: "Compel others to speak only the truth",
-                summary: "Target cannot lie for the duration",
-                dicePool: "Manipulation + Empathy",
-                level: 2,
-                gift: "wisdom",
-                cost: "1 Gnosis",
-                duration: "One scene",
-            },
-            {
-                name: "Wisdom of the Ancient Ways",
-                description: "Access the collective knowledge of your ancestors",
-                summary: "Gain knowledge about any topic from ancestral memory",
-                dicePool: "Intelligence + Occult",
-                level: 3,
-                gift: "wisdom",
-                cost: "2 Gnosis",
-                duration: "Instant",
-            },
-        ],
+    {
+        name: "Crow's Laughter", 
+        category: "Ragabash",
+        renown: "Honor",
+        summary: "Mockery causes Superficial Willpower damage",
+        description: "The Garou's mocking laughter causes psychological harm to enemies.",
+        dicePool: "Manipulation + Performance",
+        cost: "None",
+        duration: "Instant"
     },
-    war: {
-        tribes: ["Shadow Lords", "Silver Fangs", "Red Talons"],
-        summary: "Combat prowess and tactical knowledge",
-        logo: "",
-        powers: [
-            {
-                name: "Inspiration",
-                description: "Rally your packmates with words of courage and determination",
-                summary: "Grant allies bonus dice on their next action",
-                dicePool: "Charisma + Leadership",
-                level: 1,
-                gift: "war",
-                cost: "1 Gnosis",
-                duration: "Instant",
-            },
-            {
-                name: "Falling Touch",
-                description: "Send an enemy sprawling with a touch",
-                summary: "Knock target prone with a successful touch",
-                dicePool: "Dexterity + Brawl",
-                level: 1,
-                gift: "war",
-                cost: "1 Rage",
-                duration: "Instant",
-            },
-            {
-                name: "Heart of Fury",
-                description: "Become immune to fear and supernatural terror",
-                summary: "Immunity to fear effects and terror",
-                dicePool: "Willpower + Composure",
-                level: 2,
-                gift: "war",
-                cost: "1 Rage",
-                duration: "One scene",
-            },
-            {
-                name: "Silver Claws",
-                description: "Transform your claws into pure silver",
-                summary: "Claws become silver and cause aggravated damage to supernatural creatures",
-                dicePool: "",
-                level: 3,
-                gift: "war",
-                cost: "2 Gnosis",
-                duration: "One scene",
-            },
-        ],
+    {
+        name: "Gremlins",
+        category: "Ragabash",
+        renown: "Glory",
+        summary: "Cause a device to malfunction",
+        description: "The Garou can cause technological devices to fail or malfunction.",
+        dicePool: "Manipulation + Technology",
+        cost: "1 Rage",
+        duration: "Scene"
     },
-    nature: {
-        tribes: ["Bone Gnawers", "Children of Gaia", "Hart Wardens"],
-        summary: "Connection to the natural world and its creatures",
-        logo: "",
-        powers: [
-            {
-                name: "Animal Speech",
-                description: "Communicate with natural animals",
-                summary: "Speak with and understand any animal",
-                dicePool: "Charisma + Animal Ken",
-                level: 1,
-                gift: "nature",
-                cost: "1 Gnosis",
-                duration: "One scene",
-            },
-            {
-                name: "Camouflage",
-                description: "Blend perfectly with natural surroundings",
-                summary: "Become nearly invisible in wilderness settings",
-                dicePool: "Dexterity + Survival",
-                level: 1,
-                gift: "nature",
-                cost: "1 Gnosis",
-                duration: "One hour",
-            },
-            {
-                name: "Call of the Wild",
-                description: "Summon animals to your aid",
-                summary: "Animals in the area come to assist you",
-                dicePool: "Charisma + Animal Ken",
-                level: 2,
-                gift: "nature",
-                cost: "1 Gnosis",
-                duration: "One scene",
-            },
-            {
-                name: "Living Wood",
-                description: "Animate trees and plants to fight for you",
-                summary: "Plants become temporary allies under your control",
-                dicePool: "Manipulation + Survival",
-                level: 3,
-                gift: "nature",
-                cost: "2 Gnosis",
-                duration: "One scene",
-            },
-        ],
+    {
+        name: "Spider's Song",
+        category: "Ragabash", 
+        renown: "Wisdom",
+        summary: "Eavesdrop on electronic communication",
+        description: "The Garou can listen in on electronic communications like phone calls or internet traffic.",
+        dicePool: "Intelligence + Technology",
+        cost: "1 Gnosis",
+        duration: "Scene"
+    }
+]
+
+// Theurge Gifts (pp. 152-153)  
+export const theurgeGifts: Gift[] = [
+    {
+        name: "Ensnare Spirit",
+        category: "Theurge",
+        renown: "Honor", 
+        summary: "Stop a spirit and make it susceptible to further Gifts",
+        description: "The Garou can bind a spirit in place and make it vulnerable to other supernatural effects.",
+        dicePool: "Composure + Occult",
+        cost: "1 Gnosis",
+        duration: "Scene"
     },
-    technology: {
-        tribes: ["Glass Walkers", "Galestalkers"],
-        summary: "Master modern technology and urban environments",
-        logo: "",
-        powers: [
-            {
-                name: "Control Simple Machine",
-                description: "Command simple mechanical devices",
-                summary: "Control elevators, automatic doors, simple electronics",
-                dicePool: "Manipulation + Technology",
-                level: 1,
-                gift: "technology",
-                cost: "1 Gnosis",
-                duration: "One scene",
-            },
-            {
-                name: "Cybersenses",
-                description: "Interface directly with electronic surveillance systems",
-                summary: "See through cameras and electronic sensors",
-                dicePool: "Intelligence + Technology",
-                level: 2,
-                gift: "technology",
-                cost: "1 Gnosis",
-                duration: "One scene",
-            },
-            {
-                name: "Power Surge",
-                description: "Overload electrical systems with spiritual energy",
-                summary: "Cause electronics to malfunction or explode",
-                dicePool: "Gnosis + Technology",
-                level: 2,
-                gift: "technology",
-                cost: "1 Gnosis",
-                duration: "Instant",
-            },
-            {
-                name: "Jam Technology",
-                description: "Disable all technology in the area",
-                summary: "Electronics cease to function in a large area",
-                dicePool: "Gnosis + Technology",
-                level: 3,
-                gift: "technology",
-                cost: "2 Gnosis",
-                duration: "One hour",
-            },
-        ],
+    {
+        name: "Mother's Touch",
+        category: "Theurge",
+        renown: "Glory",
+        summary: "Heal other physical, living creatures", 
+        description: "The Garou can heal wounds on other living beings through touch.",
+        dicePool: "Intelligence + Medicine",
+        cost: "1 Gnosis",
+        duration: "Instant"
     },
-    spirit: {
-        tribes: ["Silent Striders", "Ghost Council"],
-        summary: "Navigate the spirit world and communicate with the dead",
-        logo: "",
-        powers: [
-            {
-                name: "Peek",
-                description: "Briefly glimpse into the spirit world",
-                summary: "See spirits and the Umbra for a moment",
-                dicePool: "Perception + Occult",
-                level: 1,
-                gift: "spirit",
-                cost: "1 Gnosis",
-                duration: "Instant",
-            },
-            {
-                name: "Spirit Speech",
-                description: "Communicate with any spirit",
-                summary: "Speak with spirits regardless of their nature",
-                dicePool: "Charisma + Occult",
-                level: 1,
-                gift: "spirit",
-                cost: "1 Gnosis",
-                duration: "One scene",
-            },
-            {
-                name: "Step Sideways",
-                description: "Cross into the spirit world",
-                summary: "Enter the Umbra/spirit realm",
-                dicePool: "Gnosis + Occult",
-                level: 2,
-                gift: "spirit",
-                cost: "1 Gnosis",
-                duration: "Until you return",
-            },
-            {
-                name: "Spirit Sight",
-                description: "See the spirit world overlaid on the physical",
-                summary: "Perceive both worlds simultaneously",
-                dicePool: "Perception + Occult",
-                level: 3,
-                gift: "spirit",
-                cost: "2 Gnosis",
-                duration: "One scene",
-            },
-        ],
+    {
+        name: "Shadow Sense",
+        category: "Theurge",
+        renown: "Wisdom",
+        summary: "Sense unseen creatures and the supernatural",
+        description: "The Garou can detect invisible, hidden, or supernatural entities.",
+        dicePool: "Wits + Awareness", 
+        cost: "None",
+        duration: "Scene"
     },
-    shadow: {
-        tribes: ["Black Furies", "Shadow Lords"],
-        summary: "Stealth, deception, and hunting in darkness",
-        logo: "",
-        powers: [
-            {
-                name: "Blur of the Milky Eye",
-                description: "Become difficult to focus on or remember",
-                summary: "Others have difficulty noticing or remembering you",
-                dicePool: "Manipulation + Stealth",
-                level: 1,
-                gift: "shadow",
-                cost: "1 Gnosis",
-                duration: "One scene",
-            },
-            {
-                name: "Shadow Weaving",
-                description: "Manipulate shadows to conceal yourself",
-                summary: "Wrap shadows around yourself for perfect concealment",
-                dicePool: "Dexterity + Stealth",
-                level: 2,
-                gift: "shadow",
-                cost: "1 Gnosis",
-                duration: "One hour",
-            },
-            {
-                name: "Pack Shadow",
-                description: "Extend shadow gifts to your entire pack",
-                summary: "Share shadow gifts with all nearby packmates",
-                dicePool: "Gnosis + Stealth",
-                level: 2,
-                gift: "shadow",
-                cost: "2 Gnosis",
-                duration: "One scene",
-            },
-            {
-                name: "Engulf",
-                description: "Wrap a target in impenetrable darkness",
-                summary: "Target is blinded and cannot see anything",
-                dicePool: "Gnosis + Stealth",
-                level: 3,
-                gift: "shadow",
-                cost: "2 Gnosis",
-                duration: "One scene",
-            },
-        ],
+    {
+        name: "Sight from Beyond",
+        category: "Theurge",
+        renown: "Wisdom",
+        summary: "Prophetic visions",
+        description: "The Garou receives visions of possible futures or distant events.",
+        dicePool: "Intelligence + Occult",
+        cost: "1 Gnosis",
+        duration: "Instant"
+    }
+]
+
+// Philodox Gifts (pp. 155-156)
+export const philodoxGifts: Gift[] = [
+    {
+        name: "Ancestral Conviction",
+        category: "Philodox",
+        renown: "Honor",
+        summary: "Persuade other Garou",
+        description: "The Garou can call upon ancestral wisdom to make persuasive arguments to other werewolves.",
+        dicePool: "Presence + Persuasion",
+        cost: "1 Gnosis",
+        duration: "Scene"
     },
-    "": {
-        tribes: [],
-        summary: "",
-        logo: "",
-        powers: [],
+    {
+        name: "Gaia's Candor",
+        category: "Philodox", 
+        renown: "Glory",
+        summary: "Determine if a target believes what they say",
+        description: "The Garou can tell if someone truly believes what they are saying.",
+        dicePool: "Wits + Insight",
+        cost: "None",
+        duration: "Scene"
     },
+    {
+        name: "Porcupine's Reprisal",
+        category: "Philodox",
+        renown: "Glory",
+        summary: "Damage those who harm you",
+        description: "Those who attack the Garou suffer damage in return.",
+        dicePool: "Stamina + Survival", 
+        cost: "1 Rage",
+        duration: "Scene"
+    },
+    {
+        name: "Sense the True Form",
+        category: "Philodox",
+        renown: "Wisdom",
+        summary: "Detect a creature's supernatural nature",
+        description: "The Garou can see through shapeshifting and detect supernatural creatures.",
+        dicePool: "Wits + Awareness",
+        cost: "None",
+        duration: "Instant"
+    }
+]
+
+// Galliard Gifts (pp. 158-159)
+export const galliardGifts: Gift[] = [
+    {
+        name: "Animal Magnetism",
+        category: "Galliard",
+        renown: "Glory",
+        summary: "Bonus to Social tests against humans",
+        description: "The Garou becomes supernaturally charismatic and appealing to humans.",
+        dicePool: "Presence + Performance",
+        cost: "1 Gnosis",
+        duration: "Scene"
+    },
+    {
+        name: "Howl of Assembly",
+        category: "Galliard",
+        renown: "Honor",
+        summary: "Call other Garou to you and fortify those who heed your call",
+        description: "The Garou's howl summons other werewolves and strengthens their resolve.",
+        dicePool: "Presence + Performance",
+        cost: "1 Gnosis",
+        duration: "Scene"
+    },
+    {
+        name: "Song of Rage",
+        category: "Galliard",
+        renown: "Glory",
+        summary: "Grant Rage to your pack",
+        description: "The Garou's song fills pack members with righteous fury.",
+        dicePool: "Presence + Performance",
+        cost: "1 Gnosis", 
+        duration: "Scene"
+    },
+    {
+        name: "Song of Serenity",
+        category: "Galliard",
+        renown: "Honor",
+        summary: "Lower your pack's Rage",
+        description: "The Garou's calming song reduces the Rage of pack members.",
+        dicePool: "Presence + Performance",
+        cost: "1 Gnosis",
+        duration: "Scene"
+    }
+]
+
+// Ahroun Gifts (pp. 161-162)
+export const ahrounGifts: Gift[] = [
+    {
+        name: "Halt the Coward's Flight",
+        category: "Ahroun",
+        renown: "Honor",
+        summary: "Slow a fleeing target",
+        description: "The Garou can supernaturally slow down fleeing enemies.",
+        dicePool: "Presence + Intimidation",
+        cost: "1 Rage",
+        duration: "Scene"
+    },
+    {
+        name: "Rapid Shift",
+        category: "Ahroun",
+        renown: "Glory",
+        summary: "Quickly change form",
+        description: "The Garou can shift between forms with supernatural speed.",
+        dicePool: "Stamina + Athletics",
+        cost: "1 Rage",
+        duration: "Instant"
+    },
+    {
+        name: "Razor Claws",
+        category: "Ahroun",
+        renown: "Glory",
+        summary: "Deal extra damage with claws",
+        description: "The Garou's claws become supernaturally sharp and deadly.",
+        dicePool: "Strength + Brawl",
+        cost: "1 Rage",
+        duration: "Scene"
+    },
+    {
+        name: "Sense Danger",
+        category: "Ahroun", 
+        renown: "Wisdom",
+        summary: "Detect traps, ambushes, and surprises",
+        description: "The Garou can sense impending danger and hostile intent.",
+        dicePool: "Wits + Awareness",
+        cost: "None",
+        duration: "Scene"
+    }
+]
+
+// All gifts combined for easy access
+export const allGifts = [
+    ...nativeGifts,
+    ...ragabashGifts, 
+    ...theurgeGifts,
+    ...philodoxGifts,
+    ...galliardGifts,
+    ...ahrounGifts
+]
+
+// Helper functions
+export const getGiftsByCategory = (category: GiftCategory): Gift[] => {
+    return allGifts.filter(gift => gift.category === category)
 }
 
-export const containsRituals = (powers: Gift[]) => powers.filter((gift) => gift.gift === "spirit").length > 0
+export const getGiftsByRenown = (renown: RenownType): Gift[] => {
+    return allGifts.filter(gift => gift.renown === renown)
+}

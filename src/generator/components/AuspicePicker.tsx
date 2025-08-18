@@ -1,7 +1,7 @@
 import { Card, Center, Grid, Image, ScrollArea, Text, Title, useMantineTheme } from "@mantine/core"
 import { useEffect } from "react"
 import ReactGA from "react-ga4"
-import { AuspiceName, auspiceNameSchema, PredatorTypeName } from "~/data/NameSchemas"
+import { AuspiceName, auspiceNameSchema } from "~/data/NameSchemas"
 import { Character } from "../../data/Character"
 import { auspices } from "../../data/Auspices"
 import { globals } from "../../globals"
@@ -36,14 +36,7 @@ const AuspicePicker = ({ character, setCharacter, nextStep }: AuspicePickerProps
                     onClick={() => {
                         setCharacter({
                             ...character,
-                            generation: 0, // Reset generation since it's not relevant for Werewolf
-                            // Store auspice in predatorType temporarily for compatibility
-                            predatorType: {
-                                ...character.predatorType,
-                                name: auspice as string as PredatorTypeName, // Temporary type assertion for compatibility
-                                pickedDiscipline: "",
-                                pickedMeritsAndFlaws: [],
-                            }
+                            auspice: auspice as AuspiceName,
                         })
 
                         ReactGA.event({

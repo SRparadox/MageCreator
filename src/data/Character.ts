@@ -51,7 +51,8 @@ export const characterSchema = z.object({
     // Werewolf fields
     availableGiftNames: giftNameSchema.array(), // Replaces availableDisciplineNames
     gifts: powerSchema.array(), // Replaces disciplines
-    rituals: ritualSchema.array(), // Rites in Werewolf
+    rites: ritualSchema.array(), // Werewolf rites (different from rituals)
+    rituals: ritualSchema.array(), // Blood Sorcery rituals (for backward compatibility)
     
     // For backward compatibility
     availableDisciplineNames: giftNameSchema.array(),
@@ -68,7 +69,6 @@ export const characterSchema = z.object({
 
     // For backward compatibility
     bloodPotency: z.number().min(0).int(),
-    generation: z.number().min(0).int(),
 
     maxHealth: z.number().min(0).int(),
     willpower: z.number().min(0).int(),
@@ -145,6 +145,7 @@ export const getEmptyCharacter = (): Character => {
         // Werewolf fields
         availableGiftNames: [],
         gifts: [],
+        rites: [],
         rituals: [],
         
         // Backward compatibility
@@ -162,7 +163,6 @@ export const getEmptyCharacter = (): Character => {
         
         // Backward compatibility
         bloodPotency: 0,
-        generation: 0,
 
         maxHealth: 0,
         willpower: 0,

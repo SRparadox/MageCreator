@@ -17,8 +17,7 @@ const AsideBar = ({ selectedStep, setSelectedStep, character }: AsideBarProps) =
         "clan", // Maps to tribe
         "attributes",
         "skills", 
-        "generation", // Maps to auspice  
-        "auspice", // Will replace generation
+        "auspice", // Werewolf auspice selection
         "name",
         "disciplines", // Maps to gifts
         ...maybeRituals,
@@ -51,7 +50,6 @@ const AsideBar = ({ selectedStep, setSelectedStep, character }: AsideBarProps) =
                 </Stepper.Step>
                 {stepperKeys.map((title) => {
                     let displayTitle = title === "clan" ? "Tribe" : upcase(title)
-                    if (title === "generation") displayTitle = "Generation" // Keep for compatibility
                     if (title === "auspice") displayTitle = "Auspice"
                     if (title === "disciplines") displayTitle = "Gifts"
                     

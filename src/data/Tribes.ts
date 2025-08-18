@@ -19,7 +19,7 @@ export const tribeSchema = z.object({
     ban: z.string(),
     favor: z.string(),
     weakness: z.string(),
-    patron: z.string(), // New field for patron spirit/totem
+    patron: z.string(), // Patron spirit/totem
     gifts: giftNameSchema.array(),
     renownType: z.enum(["Glory", "Honor", "Wisdom"]),
     renownDots: z.number(),
