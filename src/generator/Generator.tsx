@@ -85,7 +85,7 @@ const Generator = ({ character, setCharacter, selectedStep, setSelectedStep }: G
                 )
             case 6:
                 return (
-                    <AttributePicker
+                    <GiftsPicker
                         character={character}
                         setCharacter={setCharacter}
                         nextStep={() => {
@@ -95,7 +95,7 @@ const Generator = ({ character, setCharacter, selectedStep, setSelectedStep }: G
                 )
             case 7:
                 return (
-                    <SkillsPicker
+                    <TouchstonePicker
                         character={character}
                         setCharacter={setCharacter}
                         nextStep={() => {
@@ -105,26 +105,6 @@ const Generator = ({ character, setCharacter, selectedStep, setSelectedStep }: G
                 )
             case 8:
                 return (
-                    <GiftsPicker
-                        character={character}
-                        setCharacter={setCharacter}
-                        nextStep={() => {
-                            setSelectedStep(selectedStep + 1)
-                        }}
-                    />
-                )
-            case 9:
-                return (
-                    <TouchstonePicker
-                        character={character}
-                        setCharacter={setCharacter}
-                        nextStep={() => {
-                            setSelectedStep(selectedStep + 1)
-                        }}
-                    />
-                )
-            case 10:
-                return (
                     <MeritsAndFlawsPicker
                         character={character}
                         setCharacter={setCharacter}
@@ -133,7 +113,7 @@ const Generator = ({ character, setCharacter, selectedStep, setSelectedStep }: G
                         }}
                     />
                 )
-            case 11:
+            case 9:
                 return <Final character={character} setCharacter={setCharacter} setSelectedStep={setSelectedStep} />
             default:
                 return <Text size={"xl"}>{`Error: Step ${selectedStep} is not implemented`}</Text>
