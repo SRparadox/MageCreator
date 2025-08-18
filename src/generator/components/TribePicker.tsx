@@ -2,7 +2,7 @@ import { Card, Center, Grid, Image, ScrollArea, Text, Title, useMantineTheme } f
 import { notifications } from "@mantine/notifications"
 import { useEffect } from "react"
 import ReactGA from "react-ga4"
-import { TribeName, tribeNameSchema } from "~/data/NameSchemas"
+import { TribeName, tribeNameSchema, ClanName, DisciplineName } from "~/data/NameSchemas"
 import { Character } from "../../data/Character"
 import { tribes } from "../../data/Tribes"
 import { globals } from "../../globals"
@@ -33,7 +33,7 @@ const TribePicker = ({ character, setCharacter, nextStep }: TribePickerProps) =>
                     shadow="sm"
                     padding="lg"
                     radius="md"
-                    h={275}
+                    h={320}
                     style={{ background: bgColor, cursor: "pointer" }}
                     onClick={() => {
                         if ((notDefault(character, "disciplines") || notDefault(character, "predatorType")) && tribe !== character.clan) {
@@ -46,16 +46,16 @@ const TribePicker = ({ character, setCharacter, nextStep }: TribePickerProps) =>
 
                             setCharacter({
                                 ...character,
-                                clan: tribe, // Note: keeping 'clan' property name for compatibility, but it now represents tribe
+                                clan: tribe as string as ClanName, // Temporary: tribe names as clan until Character schema is updated
                                 disciplines: [], // This will be renamed to gifts later
-                                availableDisciplineNames: tribes[tribe].gifts,
+                                availableDisciplineNames: tribes[tribe].gifts as string[] as DisciplineName[], // Temporary: gifts as disciplines
                                 predatorType: character.predatorType, // This will be renamed to auspice later
                             })
                         } else {
                             setCharacter({
                                 ...character,
-                                clan: tribe, // Note: keeping 'clan' property name for compatibility
-                                availableDisciplineNames: tribes[tribe].gifts,
+                                clan: tribe as string as ClanName, // Temporary: tribe names as clan until Character schema is updated
+                                availableDisciplineNames: tribes[tribe].gifts as string[] as DisciplineName[], // Temporary: gifts as disciplines
                             })
                         }
 
@@ -79,6 +79,14 @@ const TribePicker = ({ character, setCharacter, nextStep }: TribePickerProps) =>
 
                     <Text h={55} size="sm" color="dimmed" ta="center">
                         {tribes[tribe].description}
+                    </Text>
+                    
+                    <Text size="xs" ta="center" c="yellow" mt="xs">
+                        <b>Favor:</b> {tribes[tribe].favor}
+                    </Text>
+                    
+                    <Text size="xs" ta="center" c="blue" mt="xs">
+                        +2 {tribes[tribe].renownType} Renown
                     </Text>
                 </Card>
             </Grid.Col>

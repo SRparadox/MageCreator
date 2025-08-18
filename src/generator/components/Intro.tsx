@@ -25,19 +25,16 @@ const Intro = ({ setCharacter, nextStep }: IntroProps) => {
     return (
         <Alert mt={globals.isPhoneScreen ? "75px" : "50px"} color="grape" variant="outline" bg={"rgba(0, 0, 0, 0.6)"}>
             <Text fz={globals.largeFontSize} ta={"center"} mb={"lg"}>
-                This is a &apos;Vampire: The Masquerade&apos; v5 character creation tool for beginners
+                This is a &apos;Werewolf: the Apocalypse&apos; 5th Edition character creation tool for beginners
             </Text>
             <Text fz={globals.smallerFontSize} mb={"xs"}>
-                It is intentionally streamlined and limited to creating a common type of character following the rules from the source book.
+                It is intentionally streamlined and limited to creating a common type of Garou character following the rules from the source book.
             </Text>
             <Text fz={globals.smallerFontSize} mb={"xs"}>
-                You can download your character into a printable PDF when you&apos;re done (PDF template kindly provided by{" "}
-                <a href="https://linktr.ee/nerdbert">Nerdbert</a>) and also save it to a local file that you can load into this web app to
-                continue editing.
+                You can download your character into a printable PDF when you&apos;re done and also save it to a local file that you can load into this web app to continue editing.
             </Text>
             <Text fz={globals.smallerFontSize} mb={"xl"}>
-                Note that none of your data will be sent to or stored on a server and you may lose your character if you don&apos;t download
-                it!
+                Note that none of your data will be sent to or stored on a server and you may lose your character if you don&apos;t download it!
             </Text>
 
             <Text fz={globals.smallerFontSize} mb={"xl"}>

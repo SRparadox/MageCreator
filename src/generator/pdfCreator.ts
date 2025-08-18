@@ -10,7 +10,7 @@ import checkPng from "../resources/CheckSolid.png"
 // import base64Pdf_renegade from '../resources/v5_charactersheet_fillable_v3.base64';
 import { attributesKeySchema } from "../data/Attributes"
 import { Power, Ritual, powerIsRitual } from "../data/Disciplines"
-import base64Pdf_nerdbert from "../resources/VtM5e_ENG_CharacterSheet_2pMINI_noTxtRichFields.base64?raw"
+import base64Pdf_werewolf from "../resources/WerewolfSheet.base64?raw"
 import { upcase } from "./utils"
 import { DisciplineName } from "~/data/NameSchemas"
 
@@ -108,7 +108,7 @@ const potencyEffects: Record<number, BloodPotencyEffect> = {
 }
 
 const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => {
-    const bytes = base64ToArrayBuffer(base64Pdf_nerdbert)
+    const bytes = base64ToArrayBuffer(base64Pdf_werewolf)
 
     const pdfDoc = await initPDFDocument(bytes)
     const form = pdfDoc.getForm()
@@ -267,19 +267,42 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
     form.getTextField("Predator type").setText(character.predatorType.name)
     form.getTextField("Ambition").setText(character.ambition)
 
-    form.getTextField("Clan").setText(character.clan)
-    // For werewolf, we use ban instead of bane, and weakness instead of compulsion
-    const banText = character.clan && tribes[character.clan] ? tribes[character.clan].ban : ""
-    const weaknessText = character.clan && tribes[character.clan] ? tribes[character.clan].weakness : ""
-    
-    // Try to set tribe-specific fields, fall back to clan fields if werewolf sheet doesn't have them yet
+    // Set tribe name - try "Tribe" field first, fallback to "Clan"
     try {
-        form.getTextField("TribeBan")?.setText(banText)
-        form.getTextField("TribalWeakness")?.setText(weaknessText)
+        form.getTextField("Tribe")?.setText(character.clan)
     } catch (e) {
-        // Fallback to original clan fields if werewolf sheet isn't ready
-        form.getTextField("ClanBane")?.setText(banText)
-        form.getTextField("ClanCompulsion")?.setText(weaknessText)
+        form.getTextField("Clan")?.setText(character.clan)
+    }
+    
+    // For werewolf, we use ban and favor instead of bane and compulsion
+    if (character.clan && tribes[character.clan as keyof typeof tribes]) {
+        const tribe = tribes[character.clan as keyof typeof tribes]
+        const banText = tribe.ban
+        const favorText = tribe.favor
+        
+        // Try to set tribe-specific fields, fall back to clan fields if werewolf sheet doesn't have them yet
+        try {
+            form.getTextField("TribeBan")?.setText(banText)
+            form.getTextField("TribeFavor")?.setText(favorText)
+        } catch (e) {
+            // Fallback to original clan fields if werewolf sheet isn't ready
+            try {
+                form.getTextField("ClanBane")?.setText(banText)
+                form.getTextField("ClanCompulsion")?.setText(favorText)
+            } catch (e2) {
+                // If neither work, just continue
+            }
+        }
+        
+        // Try to set renown information
+        try {
+            const renownField = `${tribe.renownType}Renown`
+            const existingRenown = form.getTextField(renownField)?.getText() || "0"
+            const newRenown = parseInt(existingRenown) + tribe.renownDots
+            form.getTextField(renownField)?.setText(newRenown.toString())
+        } catch (e) {
+            // If renown fields don't exist yet, continue
+        }
     }
 
     form.getTextField("Sire").setText(character.sire)
@@ -416,7 +439,7 @@ const getFields = (form: PDFForm): Record<string, string> => {
 }
 
 export const printFieldNames = async () => {
-    const basePdf = base64Pdf_nerdbert
+    const basePdf = base64Pdf_werewolf
     const bytes = base64ToArrayBuffer(basePdf)
 
     const pdfDoc = await initPDFDocument(bytes)
