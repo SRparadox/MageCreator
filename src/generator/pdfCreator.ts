@@ -3,6 +3,7 @@ import fontkit from "@pdf-lib/fontkit"
 import { PDFBool, PDFDocument, PDFFont, PDFForm, PDFName } from "pdf-lib"
 import { Character } from "../data/Character"
 import { clans } from "../data/Clans"
+import { tribes } from "../data/Tribes"
 import { PredatorTypes } from "../data/PredatorType"
 import { SkillsKey, skillsKeySchema } from "../data/Skills"
 import checkPng from "../resources/CheckSolid.png"
@@ -267,9 +268,19 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
     form.getTextField("Ambition").setText(character.ambition)
 
     form.getTextField("Clan").setText(character.clan)
-    const baneText = clans[character.clan].bane.replace("BANE_SEVERITY", `${effects.bane} (bane severity)`)
-    form.getTextField("ClanBane").setText(baneText)
-    form.getTextField("ClanCompulsion").setText(clans[character.clan].compulsion)
+    // For werewolf, we use ban instead of bane, and weakness instead of compulsion
+    const banText = character.clan && tribes[character.clan] ? tribes[character.clan].ban : ""
+    const weaknessText = character.clan && tribes[character.clan] ? tribes[character.clan].weakness : ""
+    
+    // Try to set tribe-specific fields, fall back to clan fields if werewolf sheet doesn't have them yet
+    try {
+        form.getTextField("TribeBan")?.setText(banText)
+        form.getTextField("TribalWeakness")?.setText(weaknessText)
+    } catch (e) {
+        // Fallback to original clan fields if werewolf sheet isn't ready
+        form.getTextField("ClanBane")?.setText(banText)
+        form.getTextField("ClanCompulsion")?.setText(weaknessText)
+    }
 
     form.getTextField("Sire").setText(character.sire)
     form.getTextField("Desire").setText(character.desire)

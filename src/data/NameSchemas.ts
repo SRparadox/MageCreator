@@ -26,6 +26,22 @@ export const clanNameSchema = z.union([
 ])
 export type ClanName = z.infer<typeof clanNameSchema>
 
+export const tribeNameSchema = z.union([
+    z.literal("Black Furies"),
+    z.literal("Bone Gnawers"),
+    z.literal("Children of Gaia"),
+    z.literal("Galestalkers"),
+    z.literal("Ghost Council"),
+    z.literal("Glass Walkers"),
+    z.literal("Hart Wardens"),
+    z.literal("Red Talons"),
+    z.literal("Shadow Lords"),
+    z.literal("Silent Striders"),
+    z.literal("Silver Fangs"),
+    z.literal(""),
+])
+export type TribeName = z.infer<typeof tribeNameSchema>
+
 export const disciplineNameSchema = z.union([
     z.literal("animalism"),
     z.literal("auspex"),
@@ -44,6 +60,41 @@ export const disciplineNameSchema = z.union([
     z.literal(""),
 ])
 export type DisciplineName = z.infer<typeof disciplineNameSchema>
+
+export const giftNameSchema = z.union([
+    z.literal("Rage"),
+    z.literal("Luna's Armor"),
+    z.literal("Wyld"),
+    z.literal("City"),
+    z.literal("Rat"),
+    z.literal("Survival"),
+    z.literal("Mother's Touch"),
+    z.literal("Resist Pain"),
+    z.literal("Luna"),
+    z.literal("Strength"),
+    z.literal("War"),
+    z.literal("Death"),
+    z.literal("Spirits"),
+    z.literal("Wisdom"),
+    z.literal("Glass"),
+    z.literal("Electricity"),
+    z.literal("Faerie"),
+    z.literal("Nature"),
+    z.literal("Storytelling"),
+    z.literal("Beast Speech"),
+    z.literal("Predator's Arsenal"),
+    z.literal("Wolf"),
+    z.literal("Dominance"),
+    z.literal("Shadow"),
+    z.literal("Persuasion"),
+    z.literal("Speed"),
+    z.literal("Silence"),
+    z.literal("Umbral"),
+    z.literal("Inspiration"),
+    z.literal("Nobility"),
+    z.literal(""),
+])
+export type GiftName = z.infer<typeof giftNameSchema>
 
 export const predatorTypeNameSchema = z.union([
     z.literal("Alleycat"),

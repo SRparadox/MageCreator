@@ -49,10 +49,11 @@ const AsideBar = ({ selectedStep, setSelectedStep, character }: AsideBarProps) =
                     {" "}
                 </Stepper.Step>
                 {stepperKeys.map((title) => {
+                    const displayTitle = title === "clan" ? "Tribe" : upcase(title)
                     return (
                         <Stepper.Step
                             key={title}
-                            label={upcase(title)}
+                            label={displayTitle}
                             description=""
                             disabled={!isHigherLevelAccessible(character, title)}
                         >

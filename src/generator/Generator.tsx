@@ -2,7 +2,7 @@ import { Center, Text } from "@mantine/core"
 import { Character, containsBloodSorcery } from "../data/Character"
 import AttributePicker from "./components/AttributePicker"
 import BasicsPicker from "./components/BasicsPicker"
-import ClanPicker from "./components/ClanPicker"
+import TribePicker from "./components/TribePicker"
 import DisciplinesPicker from "./components/DisciplinesPicker"
 import Final from "./components/Final"
 import GenerationPicker from "./components/GenerationPicker"
@@ -38,7 +38,7 @@ const Generator = ({ character, setCharacter, selectedStep, setSelectedStep }: G
                 )
             case 1:
                 return (
-                    <ClanPicker
+                    <TribePicker
                         character={character}
                         setCharacter={setCharacter}
                         nextStep={() => {

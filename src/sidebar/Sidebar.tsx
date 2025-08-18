@@ -22,7 +22,7 @@ const Sidebar = ({ character }: SidebarProps) => {
             <Stack>
                 {notDefault(character, "clan") ? (
                     <Text fz="xl">
-                        <Center>{character.clan}</Center>
+                        <Center><b>Tribe:</b> {character.clan}</Center>
                     </Text>
                 ) : null}
                 {notDefault(character, "name") ? <BasicsDisplay character={character} /> : null}
