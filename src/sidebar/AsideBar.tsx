@@ -11,8 +11,6 @@ export type AsideBarProps = {
 
 const AsideBar = ({ selectedStep, setSelectedStep, character }: AsideBarProps) => {
     // const smallScreen = globals.isSmallScreen
-    // For now, always include rituals step if there are any gifts
-    const maybeRituals = character.disciplines.length > 0 ? ["rituals"] : []
     const stepperKeys = [
         "clan", // Maps to tribe
         "attributes",
@@ -20,7 +18,6 @@ const AsideBar = ({ selectedStep, setSelectedStep, character }: AsideBarProps) =
         "auspice", // Werewolf auspice selection
         "name",
         "disciplines", // Maps to gifts
-        ...maybeRituals,
         "touchstones",
         "merits",
     ] as (keyof Character)[]
