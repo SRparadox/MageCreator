@@ -96,6 +96,16 @@ export const giftNameSchema = z.union([
 ])
 export type GiftName = z.infer<typeof giftNameSchema>
 
+export const auspiceNameSchema = z.union([
+    z.literal("Ragabash"),
+    z.literal("Theurge"),
+    z.literal("Philodox"),
+    z.literal("Galliard"),
+    z.literal("Ahroun"),
+    z.literal(""),
+])
+export type AuspiceName = z.infer<typeof auspiceNameSchema>
+
 export const predatorTypeNameSchema = z.union([
     z.literal("Alleycat"),
     z.literal("Extortionist"),

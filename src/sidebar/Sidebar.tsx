@@ -28,14 +28,10 @@ const Sidebar = ({ character }: SidebarProps) => {
                 {notDefault(character, "name") ? <BasicsDisplay character={character} /> : null}
                 {notDefault(character, "attributes") ? <AttributesDisplay attributes={character.attributes} /> : null}
                 {notDefault(character, "skills") ? <SkillDisplay skills={character.skills} /> : null}
-                {notDefault(character, "generation") ? (
-                    <Text>
-                        <b>Generation:</b> {character.generation}
-                    </Text>
-                ) : null}
+                {/* Generation is not used in Werewolf, will be replaced with Auspice display later */}
                 {notDefault(character, "predatorType") ? (
                     <Text>
-                        <b>Predator Type:</b> {character.predatorType.name}
+                        <b>Auspice:</b> {character.predatorType.name || "Not selected"}
                     </Text>
                 ) : null}
                 {notDefault(character, "disciplines") ? (

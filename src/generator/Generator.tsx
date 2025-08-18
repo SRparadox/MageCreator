@@ -5,7 +5,7 @@ import BasicsPicker from "./components/BasicsPicker"
 import TribePicker from "./components/TribePicker"
 import DisciplinesPicker from "./components/DisciplinesPicker"
 import Final from "./components/Final"
-import GenerationPicker from "./components/GenerationPicker"
+import AuspicePicker from "./components/AuspicePicker"
 import Intro from "./components/Intro"
 import MeritsAndFlawsPicker from "./components/MeritsAndFlawsPicker"
 import PredatorTypePicker from "./components/PredatorTypePicker"
@@ -68,7 +68,7 @@ const Generator = ({ character, setCharacter, selectedStep, setSelectedStep }: G
                 )
             case 4:
                 return (
-                    <GenerationPicker
+                    <AuspicePicker
                         character={character}
                         setCharacter={setCharacter}
                         nextStep={() => {
