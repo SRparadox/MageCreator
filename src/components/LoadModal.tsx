@@ -1,12 +1,11 @@
-    import { faXmark } from "@fortawesome/free-solid-svg-icons"
+import { faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Button, Divider, Group, Modal, Stack, Text } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { Buffer } from "buffer"
 import { z } from "zod"
-import { clans } from "~/data/Clans"
 import { tribes } from "~/data/Tribes"
-import { clanNameSchema, tribeNameSchema } from "~/data/NameSchemas"
+import { tribeNameSchema } from "~/data/NameSchemas"
 import { Character, characterSchema } from "../data/Character"
 import { getUploadFile } from "../generator/utils"
 
@@ -49,20 +48,15 @@ const LoadModal = ({ loadModalOpened, closeLoadModal, setCharacter, loadedFile }
                                 if (!parsed["availableDisciplineNames"]) {
                                     // backwards compatibility for characters that were saved before Caitiff were added
                                     const clanOrTribe = parsed["clan"]
-                                    let availableDisciplines = []
+                                    let availableDisciplines: string[] = []
                                     
                                     // Try to parse as tribe first (new format)
                                     try {
                                         const tribe = tribeNameSchema.parse(clanOrTribe)
                                         availableDisciplines = tribes[tribe].gifts
                                     } catch (e) {
-                                        // Fall back to clan format (old saves)
-                                        try {
-                                            const clan = clanNameSchema.parse(clanOrTribe)
-                                            availableDisciplines = clans[clan].nativeDisciplines
-                                        } catch (e2) {
-                                            availableDisciplines = []
-                                        }
+                                        // Fall back to empty for old clan saves (no longer supported)
+                                        availableDisciplines = []
                                     }
 
                                     parsed["availableDisciplineNames"] = Array.from(new Set(availableDisciplines))

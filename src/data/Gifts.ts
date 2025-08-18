@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { Power } from "./Disciplines"
 
 export const renownTypeSchema = z.enum(["Glory", "Honor", "Wisdom"])
 export type RenownType = z.infer<typeof renownTypeSchema>
@@ -319,4 +320,11 @@ export const getGiftsByCategory = (category: GiftCategory): Gift[] => {
 
 export const getGiftsByRenown = (renown: RenownType): Gift[] => {
     return allGifts.filter(gift => gift.renown === renown)
+}
+
+// Check if character has gifts that might give access to rituals
+export const containsRituals = (gifts: Power[]): boolean => {
+    // In Werewolf, characters with spirit gifts or certain other gifts may have access to rituals
+    // For now, just check if they have any gifts/powers at all
+    return gifts.length > 0
 }
