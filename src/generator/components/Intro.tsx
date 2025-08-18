@@ -1,11 +1,12 @@
-import { faFileArrowUp, faPlay } from "@fortawesome/free-solid-svg-icons"
+import { faFileArrowUp, faPlay, faTrash } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { ActionIcon, Alert, Button, FileButton, Stack, Text } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
+import { notifications } from "@mantine/notifications"
 import { IconBrandGithub, IconBrandReddit, IconBrandTwitter } from "@tabler/icons-react"
 import { useEffect, useState } from "react"
 import LoadModal from "../../components/LoadModal"
-import { Character } from "../../data/Character"
+import { Character, getEmptyCharacter } from "../../data/Character"
 import ReactGA from "react-ga4"
 import { globals } from "../../globals"
 
@@ -21,6 +22,29 @@ const Intro = ({ setCharacter, nextStep }: IntroProps) => {
 
     const [loadedFile, setLoadedFile] = useState<File | null>(null)
     const [loadModalOpened, { open: openLoadModal, close: closeLoadModal }] = useDisclosure(false)
+
+    const handleResetAllData = () => {
+        // Clear localStorage
+        localStorage.removeItem("character")
+        localStorage.removeItem("selectedStep")
+
+        // Reset character to empty state
+        setCharacter(getEmptyCharacter())
+
+        // Show confirmation notification
+        notifications.show({
+            title: "Data Reset Complete",
+            message: "All locally saved character data has been cleared. You can now start fresh!",
+            color: "green",
+            autoClose: 5000,
+        })
+
+        // Track analytics event
+        ReactGA.event({
+            action: "reset_all_data",
+            category: "user_action",
+        })
+    }
 
     return (
         <Alert mt={globals.isPhoneScreen ? "75px" : "50px"} color="grape" variant="outline" bg={"rgba(0, 0, 0, 0.6)"}>
@@ -68,6 +92,16 @@ const Intro = ({ setCharacter, nextStep }: IntroProps) => {
                     )}
                 </FileButton>
 
+                <Button 
+                    leftIcon={<FontAwesomeIcon icon={faTrash} />} 
+                    size="md" 
+                    color="red" 
+                    variant="outline"
+                    onClick={handleResetAllData}
+                >
+                    Reset All Saved Data
+                </Button>
+
                 <Button
                     component="a"
                     href="https://github.com/Odin94/Progeny-vtm-v5-character-creator"
@@ -102,6 +136,15 @@ const Intro = ({ setCharacter, nextStep }: IntroProps) => {
                     variant="subtle"
                 >
                     <Text color="rgb(190,190,190)">View My Website</Text>
+                </Button>
+                <Button
+                    leftIcon={<FontAwesomeIcon icon={faTrash} />}
+                    size="md"
+                    color="red"
+                    variant="outline"
+                    onClick={handleResetAllData}
+                >
+                    Reset All Data
                 </Button>
             </Stack>
 
