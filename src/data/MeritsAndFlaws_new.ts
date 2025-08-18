@@ -1,3 +1,5 @@
+import { Character } from "./Character"
+
 export type MeritOrFlaw = { name: string; cost: number[]; summary: string }
 
 export type MeritsAndFlaws = {

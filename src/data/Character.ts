@@ -3,7 +3,7 @@ import { Power, powerSchema, ritualSchema } from "./Disciplines"
 import { specialtySchema } from "./Specialties"
 import { skillsSchema } from "./Skills"
 import { attributesSchema } from "./Attributes"
-import { clanNameSchema, disciplineNameSchema, predatorTypeNameSchema } from "./NameSchemas"
+import { tribeNameSchema, auspiceNameSchema, giftNameSchema } from "./NameSchemas"
 
 export const meritFlawSchema = z.object({
     name: z.string(),
@@ -23,16 +23,21 @@ export type Touchstone = z.infer<typeof touchstoneSchema>
 export const characterSchema = z.object({
     name: z.string(),
     description: z.string(),
-    sire: z.string(),
+    pack: z.string(), // Replaces 'sire'
 
-    clan: clanNameSchema,
-    // clanDisciplines:
+    // Werewolf 5e specific fields
+    tribe: tribeNameSchema, // Replaces 'clan'
+    auspice: auspiceNameSchema, // Replaces 'predatorType'
+    
+    // Temporary compatibility - will be removed later
+    clan: tribeNameSchema, // For backward compatibility, maps to tribe
     predatorType: z.object({
-        name: predatorTypeNameSchema,
-        pickedDiscipline: disciplineNameSchema,
+        name: auspiceNameSchema, // For backward compatibility, maps to auspice
+        pickedDiscipline: giftNameSchema.optional().default(""),
         pickedSpecialties: specialtySchema.array(),
         pickedMeritsAndFlaws: meritFlawSchema.array(),
     }),
+
     touchstones: touchstoneSchema.array(),
     ambition: z.string(),
     desire: z.string(),
@@ -40,17 +45,33 @@ export const characterSchema = z.object({
     attributes: attributesSchema,
     skills: skillsSchema,
     skillSpecialties: specialtySchema.array(),
-    availableDisciplineNames: disciplineNameSchema.array(),
+    
+    // Werewolf fields
+    availableGiftNames: giftNameSchema.array(), // Replaces availableDisciplineNames
+    gifts: powerSchema.array(), // Replaces disciplines
+    rituals: ritualSchema.array(), // Rites in Werewolf
+    
+    // For backward compatibility
+    availableDisciplineNames: giftNameSchema.array(),
     disciplines: powerSchema.array(),
-    rituals: ritualSchema.array(),
 
+    // Werewolf stats
+    rage: z.number().min(0).int(), // Replaces bloodPotency
+    gnosis: z.number().min(0).int(), // Replaces generation
+    renown: z.object({
+        glory: z.number().min(0).int(),
+        honor: z.number().min(0).int(),
+        wisdom: z.number().min(0).int(),
+    }),
+
+    // For backward compatibility
     bloodPotency: z.number().min(0).int(),
     generation: z.number().min(0).int(),
 
     maxHealth: z.number().min(0).int(),
     willpower: z.number().min(0).int(),
     experience: z.number().min(0).int(),
-    humanity: z.number().min(0).int(),
+    humanity: z.number().min(0).int(), // Will be replaced with harmony later
 
     merits: meritFlawSchema.array(),
     flaws: meritFlawSchema.array(),
@@ -61,10 +82,16 @@ export const getEmptyCharacter = (): Character => {
     return {
         name: "",
         description: "",
-        sire: "",
+        pack: "", // Replaces sire
 
+        // Werewolf fields
+        tribe: "",
+        auspice: "",
+        
+        // Backward compatibility
         clan: "",
         predatorType: { name: "", pickedDiscipline: "", pickedSpecialties: [], pickedMeritsAndFlaws: [] },
+        
         touchstones: [],
         ambition: "",
         desire: "",
@@ -110,10 +137,26 @@ export const getEmptyCharacter = (): Character => {
             technology: 0,
         },
         skillSpecialties: [],
+        
+        // Werewolf fields
+        availableGiftNames: [],
+        gifts: [],
+        rituals: [],
+        
+        // Backward compatibility
         availableDisciplineNames: [],
         disciplines: [],
-        rituals: [],
 
+        // Werewolf stats
+        rage: 1,
+        gnosis: 1,
+        renown: {
+            glory: 0,
+            honor: 0,
+            wisdom: 0,
+        },
+        
+        // Backward compatibility
         bloodPotency: 0,
         generation: 0,
 
