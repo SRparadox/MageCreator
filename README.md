@@ -16,7 +16,7 @@ The creator runs entirely in your browser, no files are sent to a server.
 
 This is a 'Werewolf: the Apocalypse' character creation tool for beginners. It is intentionally streamlined and limited to creating a common type of character following the rules from the source book. You can download your character into a printable PDF when you're done and also save it to a local JSON file that you can load into this web app to continue editing.
 
-If you want to buy me a coffee, you can toss me some coins over here: https://ko-fi.com/odin_dev
+This was possible with the groundwork and structure provided by odin_dev
 
 ## How to run
 * `npm install`
