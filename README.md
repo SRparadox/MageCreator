@@ -1,8 +1,3 @@
-<p align="center">
-  <a href="https://www.odin-matthias.de">
-    <img alt="Howl" src="./readme_assets/messy_crit.svg" width="60" />
-  </a>
-</p>
 <h1 align="center">
   <div>🐺 Howl 🌙</div>
   <div style="font-size: 20px;">A 'Werewolf: the Apocalypse' 5th Edition Character Creator</div>
