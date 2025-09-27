@@ -1,6 +1,6 @@
 import { Card, Center, Grid, Image, ScrollArea, Text, Title, useMantineTheme } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
-import { useEffect } from "react"
+import { useEffect, useRef, useState } from "react"
 import ReactGA from "react-ga4"
 import { TribeName, tribeNameSchema, DisciplineName } from "~/data/NameSchemas"
 import { Character } from "../../data/Character"
@@ -20,8 +20,82 @@ const TribePicker = ({ character, setCharacter, nextStep }: TribePickerProps) =>
     }, [])
 
     const theme = useMantineTheme()
+    const [hoveredTribe, setHoveredTribe] = useState<TribeName | null>(null)
 
     const c1 = "rgba(26, 27, 30, 0.90)"
+
+    // Scrollable text component for descriptions
+    const ScrollableDescription = ({ text, tribe }: { text: string; tribe: TribeName }) => {
+        const textRef = useRef<HTMLDivElement>(null)
+        const [shouldScroll, setShouldScroll] = useState(false)
+        
+        useEffect(() => {
+            if (textRef.current) {
+                const element = textRef.current
+                setShouldScroll(element.scrollHeight > element.clientHeight)
+            }
+        }, [text])
+        
+        useEffect(() => {
+            if (textRef.current && shouldScroll && hoveredTribe === tribe) {
+                const element = textRef.current
+                const scrollHeight = element.scrollHeight - element.clientHeight
+                
+                if (scrollHeight > 0) {
+                    let scrollPosition = 0
+                    const scrollSpeed = 30 // pixels per second
+                    const pauseTime = 1000 // pause at start/end in ms
+                    
+                    const scroll = () => {
+                        if (hoveredTribe !== tribe) return // Stop if no longer hovered
+                        
+                        element.scrollTop = scrollPosition
+                        
+                        if (scrollPosition < scrollHeight) {
+                            scrollPosition += scrollSpeed / 60 // 60fps
+                            requestAnimationFrame(scroll)
+                        } else {
+                            // Pause at bottom, then reset
+                            setTimeout(() => {
+                                if (hoveredTribe === tribe) {
+                                    scrollPosition = 0
+                                    element.scrollTop = 0
+                                    setTimeout(() => {
+                                        if (hoveredTribe === tribe) {
+                                            requestAnimationFrame(scroll)
+                                        }
+                                    }, pauseTime)
+                                }
+                            }, pauseTime)
+                        }
+                    }
+                    
+                    // Start scrolling after initial pause
+                    setTimeout(() => {
+                        if (hoveredTribe === tribe) {
+                            requestAnimationFrame(scroll)
+                        }
+                    }, pauseTime)
+                }
+            }
+        }, [hoveredTribe, tribe, shouldScroll])
+        
+        return (
+            <div
+                ref={textRef}
+                style={{
+                    height: 55,
+                    overflow: 'hidden',
+                    fontSize: '14px',
+                    color: 'dimmed',
+                    textAlign: 'center',
+                    lineHeight: '1.2'
+                }}
+            >
+                {text}
+            </div>
+        )
+    }
 
     const createTribePick = (tribe: TribeName, c2: string) => {
         const bgColor = theme.fn.linearGradient(0, c1, c2)
@@ -35,6 +109,8 @@ const TribePicker = ({ character, setCharacter, nextStep }: TribePickerProps) =>
                     radius="md"
                     h={320}
                     style={{ background: bgColor, cursor: "pointer" }}
+                    onMouseEnter={() => setHoveredTribe(tribe)}
+                    onMouseLeave={() => setHoveredTribe(null)}
                     onClick={() => {
                         if ((notDefault(character, "gifts") || notDefault(character, "auspice")) && tribe !== character.tribe) {
                             notifications.show({
@@ -83,9 +159,7 @@ const TribePicker = ({ character, setCharacter, nextStep }: TribePickerProps) =>
                         <Title p="md">{tribe}</Title>
                     </Center>
 
-                    <Text h={55} size="sm" color="dimmed" ta="center">
-                        {tribes[tribe].description}
-                    </Text>
+                    <ScrollableDescription text={tribes[tribe].description} tribe={tribe} />
                     
                     <Text size="xs" ta="center" c="yellow" mt="xs">
                         <b>Favor:</b> {tribes[tribe].favor}
