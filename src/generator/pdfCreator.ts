@@ -35,14 +35,17 @@ export const testTemplate = async (basePdf: string) => {
     }
     try {
         form.getTextField("Name").setText("")
-        form.getTextField("Concept").setText("")
         // Try werewolf fields first, fallback to vampire fields for compatibility
         try {
+            form.getTextField("Auspice").setText("")
+            form.getTextField("Player").setText("")
             form.getTextField("Tribe").setText("")
             form.getTextField("Chronicle").setText("")
+            form.getTextField("Patron").setText("")
         } catch (e) {
             form.getTextField("Predator").setText("")
             form.getTextField("Ambition").setText("")
+            form.getTextField("Sire").setText("")
         }
     } catch (err) {
         return {
@@ -193,25 +196,26 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
     }
 
     // Top fields - Werewolf character info
+    // Name
     form.getTextField("Name").setText(character.name)
-    form.getTextField("pcDescription").setText(character.description)
     
-    // New Werewolf fields replacing vampire fields
+    // Auspice
+    const auspiceName = character.auspice || character.predatorType.name
     try {
-        form.getTextField("Concept").setText(character.concept || "")
+        form.getTextField("Auspice")?.setText(auspiceName)
     } catch (e) {
-        // Fallback if Concept field doesn't exist
-        form.getTextField("Predator type")?.setText(character.concept || "")
+        form.getTextField("Predator")?.setText(auspiceName)
     }
     
+    // Player Name
     try {
-        form.getTextField("Chronicle").setText(character.chronicle || "")
+        form.getTextField("Player")?.setText(character.playerName || "")
     } catch (e) {
-        // Fallback if Chronicle field doesn't exist  
-        form.getTextField("Ambition")?.setText(character.chronicle || "")
+        // Fallback if Player field doesn't exist
+        form.getTextField("pcDescription")?.setText(character.playerName || "")
     }
-
-    // Set tribe name - try "Tribe" field first, fallback to "Clan"
+    
+    // Tribe
     const tribeName = character.tribe || character.clan
     try {
         form.getTextField("Tribe")?.setText(tribeName)
@@ -219,12 +223,25 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
         form.getTextField("Clan")?.setText(tribeName)
     }
     
-    // Set auspice - try "Auspice" field first, fallback to predator type field
-    const auspiceName = character.auspice || character.predatorType.name
+    // Chronicle
     try {
-        form.getTextField("Auspice")?.setText(auspiceName)
+        form.getTextField("Chronicle").setText(character.chronicle || "")
     } catch (e) {
-        form.getTextField("Predator")?.setText(auspiceName)
+        // Fallback if Chronicle field doesn't exist  
+        form.getTextField("Ambition")?.setText(character.chronicle || "")
+    }
+    
+    // Patron (from tribe data)
+    let patronName = ""
+    if (tribeName && tribes[tribeName as keyof typeof tribes]) {
+        const tribe = tribes[tribeName as keyof typeof tribes]
+        patronName = tribe.patron || ""
+    }
+    try {
+        form.getTextField("Patron")?.setText(patronName)
+    } catch (e) {
+        // Fallback if Patron field doesn't exist
+        form.getTextField("Sire")?.setText(patronName)
     }
     
     // For werewolf, we use ban and favor instead of bane and compulsion
@@ -269,12 +286,9 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
         form.getTextField("Sire")?.setText(character.pack || "")
     }
 
-    // Gifts (mapped to disciplines for PDF compatibility)
+    // Gifts and Rites - using new field naming pattern
     const getGiftText = (power: Power | Ritual | Gift) => {
         let text = power.name + ": " + power.summary
-        if (power.dicePool !== "") {
-            text += ` // ${power.dicePool}`
-        }
         
         // Handle different power types
         if ('cost' in power) {
@@ -293,6 +307,39 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
         return text
     }
 
+    const getDicePoolText = (power: Power | Ritual | Gift) => {
+        return power.dicePool || ""
+    }
+
+    // Combine gifts and rites into a single array for unified numbering
+    const allGiftsAndRites = [
+        ...(character.disciplines || []),
+        ...(character.rituals || []),
+        ...(character.gifts || []),
+        ...(character.rites || [])
+    ]
+
+    // Fill gift/rite names and dice pools using the specified field pattern
+    allGiftsAndRites.forEach((power, index) => {
+        try {
+            // Gift name goes into 0.X.Gift_Name-1 pattern
+            const giftNameField = `0.${index}.Gift_Name-1`
+            form.getTextField(giftNameField)?.setText(getGiftText(power))
+            form.getTextField(giftNameField)?.disableRichFormatting()
+            
+            // Dice pool goes into 1.X.Gift_Name-1 pattern  
+            const dicePoolField = `1.${index}.Gift_Name-1`
+            const dicePoolText = getDicePoolText(power)
+            if (dicePoolText) {
+                form.getTextField(dicePoolField)?.setText(dicePoolText)
+                form.getTextField(dicePoolField)?.disableRichFormatting()
+            }
+        } catch (e) {
+            // If the specific field doesn't exist, continue with next
+        }
+    })
+
+    // Fallback for older discipline-based system (keep for compatibility)
     const powersByDiscipline = (character.disciplines || []).reduce(
         (acc, p) => {
             if (!acc[p.discipline]) acc[p.discipline] = []
@@ -303,19 +350,23 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
     )
     for (const [disciplineIndex, powers] of Object.values(powersByDiscipline).entries()) {
         const di = disciplineIndex + 1
-        form.getTextField(`Disc${di}`).setText(upcase(powers[0].discipline))
-        for (const [powerIndex, power] of powers.entries()) {
-            const pi = powerIndex + 1
-            form.getTextField(`Disc${di}_Ability${pi}`).setText(getGiftText(power))
-            form.getTextField(`Disc${di}_Ability${pi}`).disableRichFormatting()
-            form.getCheckBox(`Disc${di}-${pi}`).check()
-        }
-        if (powers[0].discipline === "blood sorcery") {
-            for (const [ritualIndex, ritual] of (character.rituals || []).entries()) {
-                const ri = powers.length + ritualIndex + 1
-                form.getTextField(`Disc${di}_Ability${ri}`).setText(getGiftText(ritual))
-                form.getTextField(`Disc${di}_Ability${ri}`).disableRichFormatting()
+        try {
+            form.getTextField(`Disc${di}`)?.setText(upcase(powers[0].discipline))
+            for (const [powerIndex, power] of powers.entries()) {
+                const pi = powerIndex + 1
+                form.getTextField(`Disc${di}_Ability${pi}`)?.setText(getGiftText(power))
+                form.getTextField(`Disc${di}_Ability${pi}`)?.disableRichFormatting()
+                form.getCheckBox(`Disc${di}-${pi}`)?.check()
             }
+            if (powers[0].discipline === "blood sorcery") {
+                for (const [ritualIndex, ritual] of (character.rituals || []).entries()) {
+                    const ri = powers.length + ritualIndex + 1
+                    form.getTextField(`Disc${di}_Ability${ri}`)?.setText(getGiftText(ritual))
+                    form.getTextField(`Disc${di}_Ability${ri}`)?.disableRichFormatting()
+                }
+            }
+        } catch (e) {
+            // If discipline fields don't exist, skip
         }
     }
 
@@ -333,10 +384,60 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
         }
     })
 
-    // Touchstones & Convictions
-    form.getTextField("Convictions").setText(
-        (character.touchstones || []).map(({ name, description, conviction }) => `${name}: ${conviction}\n${description}`).join("\n\n")
-    )
+    // Touchstones & Convictions - Enhanced with all details
+    const touchstonesText = (character.touchstones || []).map(({ name, description, conviction }) => 
+        `${name}: ${conviction}\n${description}`
+    ).join("\n\n")
+    
+    form.getTextField("Convictions").setText(touchstonesText)
+
+    // Flavor and Bans - Add to touchstoneNotes field
+    let flavorAndBansText = ""
+    
+    // Add tribe flavor and ban
+    if (tribeName && tribes[tribeName as keyof typeof tribes]) {
+        const tribe = tribes[tribeName as keyof typeof tribes]
+        flavorAndBansText += `Tribe Flavor: ${tribe.favor}\n`
+        flavorAndBansText += `Tribe Ban: ${tribe.ban}\n\n`
+    }
+    
+    // Map specific fields according to PDF structure
+    if (character.appearance) {
+        flavorAndBansText += `Appearance:\n${character.appearance}\n\n`
+    }
+    
+    // History goes to pcConcept field
+    try {
+        form.getTextField("pcConcept")?.setText(character.history || "")
+    } catch (e) {
+        // Fallback if pcConcept doesn't exist
+        if (character.history) {
+            flavorAndBansText += `History:\n${character.history}\n\n`
+        }
+    }
+    
+    // Notes goes to PC_Notes field
+    try {
+        form.getTextField("PC_Notes")?.setText(character.notes || "")
+    } catch (e) {
+        // Fallback if PC_Notes doesn't exist
+        if (character.notes) {
+            flavorAndBansText += `Character Notes:\n${character.notes}\n\n`
+        }
+    }
+    
+    try {
+        form.getTextField("touchstoneNotes")?.setText(flavorAndBansText.trim())
+    } catch (e) {
+        // If touchstoneNotes doesn't exist, try alternative field names
+        try {
+            form.getTextField("Notes")?.setText(flavorAndBansText.trim())
+        } catch (e2) {
+            // If no notes field exists, append to convictions
+            const combinedText = touchstonesText + (flavorAndBansText ? `\n\n--- Additional Info ---\n${flavorAndBansText.trim()}` : "")
+            form.getTextField("Convictions").setText(combinedText)
+        }
+    }
 
     // Experience - use character experience value directly
     const experience = character.experience || 0
