@@ -36,18 +36,18 @@ const Topbar = ({ character, setCharacter, setSelectedStep, setShowAsideBar }: T
                         <Stack spacing={"0px"} ml={"80px"}>
                             <span style={{ textAlign: "center" }}>
                                 <Title style={{ display: "inline", marginLeft: "50px" }} order={smallScreen ? 3 : 1}>
-                                    Progeny
+                                    First Change
                                 </Title>
                                 {phoneScreen ? null : (
                                     <Text style={{ display: "inline", verticalAlign: "top" }} c="dimmed" fz="xs">
-                                        &nbsp; by Odin
+                                        &nbsp; by Odin and Paradox Girl
                                     </Text>
                                 )}
                             </span>
 
                             {phoneScreen ? null : (
                                 <Text c="dimmed" fz="sm" ta="center">
-                                    A VtM v5 Character Creator
+                                    A Werewolf Character Creator
                                 </Text>
                             )}
                         </Stack>

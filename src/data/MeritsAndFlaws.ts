@@ -125,6 +125,89 @@ export const supernaturalSituationsMeritsAndFlaws: MeritsAndFlaws = {
     ]
 }
 
+// Allies Merits & Flaws
+export const alliesMeritsAndFlaws: MeritsAndFlaws = {
+    title: "🤝 Allies",
+    merits: [
+        { name: "Allies", cost: [1, 2, 3, 4, 5, 6], summary: "A group who will support or aid the Garou. Family, friends, or an organization that has loyalty. Build them between (• - ••••) Effectiveness and (•-•••) Reliability, the maximum amount of total points is 6. Effectiveness defines how proficient they are at a task. Reliability determines how dependable they are." }
+    ],
+    flaws: [
+        { name: "Enemy", cost: [1, 2, 3, 4, 5], summary: "The opposite to Allies, and are rated two dots less than their effectiveness." },
+        { name: "Stalkers", cost: [1], summary: "Something about the character tends to attract others who get a little bit too attached and just won't let go. Should they get rid of them, another soon appears." }
+    ]
+}
+
+// Contacts Merits
+export const contactsMerits: MeritsAndFlaws = {
+    title: "📞 Contacts",
+    merits: [
+        { name: "Contacts", cost: [1, 2, 3], summary: "These are people who can get the character information, items or other things of value." }
+    ],
+    flaws: []
+}
+
+// Fame Merits & Flaws
+export const fameMeritsAndFlaws: MeritsAndFlaws = {
+    title: "⭐ Fame",
+    merits: [
+        { name: "Fame", cost: [1, 2, 3, 4, 5], summary: "The character might be a pop singer, actress, or other celebrity. The level of fame can subtract from tests against fans and can be used inplace of a another Trait in Social tests as allowed by the Storyteller. However, this can also be a dangerous trait as tailing a target unnoticed may become difficult with fans spotting the character." }
+    ],
+    flaws: [
+        { name: "Infamy", cost: [2], summary: "They've done something atrocious and others know." },
+        { name: "Dark Secret", cost: [1], summary: "What they've done is still a secret, except to one or two very motivated enemies." },
+        { name: "Infamous Partner", cost: [1], summary: "A spouse, lover or someone else significant to the character has Infamy that will sometimes tarnish the reputation of the Garou by association." }
+    ]
+}
+
+// Mask Merits & Flaws
+export const maskMeritsAndFlaws: MeritsAndFlaws = {
+    title: "🎭 Mask",
+    merits: [
+        { name: "Mask", cost: [1, 2], summary: "A fake identity that allows the Garou to keep their true selves away from the law, this might include bank accounts, a birth certificate and everything else a Garou might need to hide their identity." },
+        { name: "Zeroed", cost: [1], summary: "All of the character's past self has been purged from all systems as if they never existed. The character must have a 2-dot mask in order to take this." },
+        { name: "Cobbler", cost: [1], summary: "The ability to create or source out masks. Making a mask takes 3 days per dot. The character must have a 2-dot mask in order to take this." }
+    ],
+    flaws: [
+        { name: "Serial Error", cost: [1], summary: "A mistake has been made in the characters background checks showing that they'd recently died, are on a dangerous watchlist, or otherwise likely to be called or detained by the police. This also applies to any database lookups on their identity." },
+        { name: "Person of Interest", cost: [2], summary: "The Garou has become a person of interest and with their biometrics and information having been logged as a potential terrorist in agency databases." }
+    ]
+}
+
+// Mentor Merits & Flaws
+export const mentorMeritsAndFlaws: MeritsAndFlaws = {
+    title: "👨‍🏫 Mentor",
+    merits: [
+        { name: "Mentor", cost: [1, 2, 3, 4, 5], summary: "Another Garou or pack of Garou who has taken the character under their wing." }
+    ],
+    flaws: [
+        { name: "Adversary", cost: [1, 2, 3], summary: "A rival Garou who wants to do the Garou or their pack harm." }
+    ]
+}
+
+// Resources Merits & Flaws
+export const resourcesMeritsAndFlaws: MeritsAndFlaws = {
+    title: "💰 Resources",
+    merits: [
+        { name: "Resources", cost: [1, 2, 3, 4, 5], summary: "An abstract form of wealth or other assets the character can use to their advantage in some situations." }
+    ],
+    flaws: [
+        { name: "Destitute", cost: [1], summary: "No money and no home." }
+    ]
+}
+
+// Spirit Pact Merits & Flaws
+export const spiritPactMeritsAndFlaws: MeritsAndFlaws = {
+    title: "👻 Spirit Pact",
+    merits: [
+        { name: "Spirit Pact", cost: [1, 2, 3, 4, 5], summary: "Loyal spirit who will aid the Garou." },
+        { name: "Host", cost: [1], summary: "The spirit has a physical body it hosts. Spirits without the Companion trait still must be summoned." },
+        { name: "Companion", cost: [2], summary: "The spirit can accompany the character whenever they go long as nothing prevents it such as spiritual wards. Without a physical host communication is restricted to the Umbra or other means." }
+    ],
+    flaws: [
+        { name: "Pact Condition", cost: [1], summary: "The pact requires performing or avoiding certain actions in exchange for aid. Failing to do so angers the spirits and it does not count as an ally until penance has been made." }
+    ]
+}
+
 // Backgrounds
 export const backgroundsData: BackgroundsData = {
     title: "📚 Backgrounds",
@@ -146,14 +229,21 @@ export const backgroundsData: BackgroundsData = {
 
 // Main merits and flaws array
 export const meritsAndFlaws: MeritsAndFlaws[] = [
+    alliesMeritsAndFlaws,
     caernMeritsAndFlaws,
+    contactsMerits,
     dayJobMerits,
+    fameMeritsAndFlaws,
     linguisticsMeritsAndFlaws,
     looksMeritsAndFlaws,
+    maskMeritsAndFlaws,
+    mentorMeritsAndFlaws,
     mythicFlaws,
     otherMeritsAndFlaws,
+    resourcesMeritsAndFlaws,
     ritesMerits,
     safeHouseMerits,
+    spiritPactMeritsAndFlaws,
     substanceAbuseFlaws,
     supernaturalSituationsMeritsAndFlaws
 ]
