@@ -7,7 +7,7 @@ import { SkillsKey, skillsKeySchema } from "../data/Skills"
 import { attributesKeySchema } from "../data/Attributes"
 import { Power, Ritual } from "../data/Disciplines"
 import { Gift } from "../data/Gifts"
-import base64Pdf_werewolf from "../resources/WerewolfSheet.base64?raw"
+import base64Pdf_werewolf from "../resources/WtA5e_ENG_Sheet_2pMINI.base64?raw"
 import { upcase } from "./utils"
 import { DisciplineName } from "~/data/NameSchemas"
 

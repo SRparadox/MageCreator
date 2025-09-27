@@ -16,6 +16,9 @@ const getAvailableGifts = (character: Character): Gift[] => {
     // Get all gifts that are available based on character's auspice and tribe
     const availableGifts: Gift[] = []
     
+    // Add native gifts (available to all Garou)
+    availableGifts.push(...getGiftsByCategory("Native"))
+    
     // Add gifts based on auspice
     if (character.auspice) {
         availableGifts.push(...getGiftsByCategory(character.auspice))
@@ -23,11 +26,8 @@ const getAvailableGifts = (character: Character): Gift[] => {
     
     // Add gifts based on tribe  
     if (character.tribe) {
-        availableGifts.push(...getGiftsByCategory(character.tribe))
+        availableGifts.push(...getGiftsByCategory(character.tribe as any))
     }
-    
-    // Add native gifts (available to all Garou)
-    availableGifts.push(...getGiftsByCategory("Native"))
     
     return availableGifts
 }
@@ -48,13 +48,33 @@ const GiftsPicker = ({ character, setCharacter, nextStep }: GiftsPickerProps) =>
         return allPickedGifts.map((gift) => gift.name).includes(gift.name)
     }
 
-    const maxGiftsPerCategory = 2 // Werewolf characters typically start with 2 gifts per category
+    // New gift selection rules: 1 from Auspice, 1 from Native, 1 from Tribe
     const canPickMoreGifts = (giftCategory: string) => {
-        const currentCount = allPickedGifts.filter((p) => p.category === giftCategory).length
-        return currentCount < maxGiftsPerCategory
+        const currentCount = allPickedGifts.filter((p: Gift) => p.category === giftCategory).length
+        
+        // Always allow 1 gift from each category type
+        if (giftCategory === "Native") {
+            return currentCount < 1
+        }
+        
+        // Check if this is an auspice gift
+        const auspiceCategories = ["Ragabash", "Theurge", "Philodox", "Galliard", "Ahroun"]
+        if (auspiceCategories.includes(giftCategory)) {
+            const auspiceGiftsCount = allPickedGifts.filter((p: Gift) => auspiceCategories.includes(p.category)).length
+            return auspiceGiftsCount < 1
+        }
+        
+        // Check if this is a tribe gift
+        const tribeCategories = ["Black Furies", "Bone Gnawers", "Children of Gaia", "Galestalkers", "Ghost Council", "Glass Walkers", "Hart Wardens", "Red Talons", "Shadow Lords", "Silent Striders", "Silver Fangs"]
+        if (tribeCategories.includes(giftCategory)) {
+            const tribeGiftsCount = allPickedGifts.filter((p: Gift) => tribeCategories.includes(p.category)).length
+            return tribeGiftsCount < 1
+        }
+        
+        return false
     }
 
-    const validToMove = pickedGifts.length >= 3 // Minimum 3 gifts to start
+    const validToMove = pickedGifts.length === 3 // Must have exactly 3 gifts: 1 Auspice, 1 Native, 1 Tribe
 
     const createGiftCard = (gift: Gift) => {
         const picked = isPicked(gift)
@@ -97,7 +117,7 @@ const GiftsPicker = ({ character, setCharacter, nextStep }: GiftsPickerProps) =>
                             setPickedGifts(newGifts)
                             
                             // Convert gifts to disciplines format for backward compatibility
-                            const giftToDisciplineMap = {
+                            const giftToDisciplineMap: Record<string, string> = {
                                 "Native": "potence",
                                 "Ragabash": "obfuscate", 
                                 "Theurge": "auspex",
@@ -115,7 +135,7 @@ const GiftsPicker = ({ character, setCharacter, nextStep }: GiftsPickerProps) =>
                                 "Shadow Lords": "dominate",
                                 "Silent Striders": "celerity",
                                 "Silver Fangs": "presence",
-                            } as const
+                            }
                             
                             const disciplinesFormat = newGifts.map(g => ({
                                 name: g.name,
@@ -152,14 +172,32 @@ const GiftsPicker = ({ character, setCharacter, nextStep }: GiftsPickerProps) =>
     const createCategoryAccordion = (categoryName: string, categoryGifts: Gift[]) => {
         if (!categoryGifts.length) return null
 
-        const pickedCount = allPickedGifts.filter((p) => p.category === categoryName).length
-        const maxCount = maxGiftsPerCategory
+        // Get the category type and count for display
+        let pickedCount = 0
+        let maxCount = 1
+        let categoryDisplayName = categoryName
+
+        if (categoryName === "Native") {
+            pickedCount = allPickedGifts.filter((p: Gift) => p.category === "Native").length
+            categoryDisplayName = "Native Gifts"
+        } else {
+            const auspiceCategories = ["Ragabash", "Theurge", "Philodox", "Galliard", "Ahroun"]
+            const tribeCategories = ["Black Furies", "Bone Gnawers", "Children of Gaia", "Galestalkers", "Ghost Council", "Glass Walkers", "Hart Wardens", "Red Talons", "Shadow Lords", "Silent Striders", "Silver Fangs"]
+            
+            if (auspiceCategories.includes(categoryName)) {
+                pickedCount = allPickedGifts.filter((p: Gift) => auspiceCategories.includes(p.category)).length
+                categoryDisplayName = `${categoryName} Gifts (Auspice)`
+            } else if (tribeCategories.includes(categoryName)) {
+                pickedCount = allPickedGifts.filter((p: Gift) => tribeCategories.includes(p.category)).length
+                categoryDisplayName = `${categoryName} Gifts (Tribe)`
+            }
+        }
 
         return (
             <Accordion.Item key={categoryName} value={categoryName}>
                 <Accordion.Control>
                     <Group position="apart">
-                        <Text weight={500}>{upcase(categoryName)} Gifts</Text>
+                        <Text weight={500}>{categoryDisplayName}</Text>
                         <Badge color={pickedCount >= maxCount ? "green" : "blue"}>
                             {pickedCount}/{maxCount}
                         </Badge>
@@ -178,13 +216,18 @@ const GiftsPicker = ({ character, setCharacter, nextStep }: GiftsPickerProps) =>
         )
     }
 
-    // Group gifts by category
+    // Group gifts by category, but only show categories the character has access to
     const giftsByCategory: Record<string, Gift[]> = {}
     availableGifts.forEach(gift => {
-        if (!giftsByCategory[gift.category]) {
-            giftsByCategory[gift.category] = []
+        // Only include gifts that the character should have access to
+        if (gift.category === "Native" || 
+            gift.category === character.auspice || 
+            gift.category === character.tribe) {
+            if (!giftsByCategory[gift.category]) {
+                giftsByCategory[gift.category] = []
+            }
+            giftsByCategory[gift.category].push(gift)
         }
-        giftsByCategory[gift.category].push(gift)
     })
 
     const height = globals.viewportHeightPx
@@ -197,7 +240,7 @@ const GiftsPicker = ({ character, setCharacter, nextStep }: GiftsPickerProps) =>
                         Choose Your Gifts
                     </Text>
                     <Text size="sm" color="dimmed" align="center">
-                        Select supernatural abilities from your tribe&apos;s gift traditions
+                        Select 3 Gifts: 1 from your Auspice, 1 Native Gift, and 1 from your Tribe
                     </Text>
                 </div>
 
@@ -211,7 +254,7 @@ const GiftsPicker = ({ character, setCharacter, nextStep }: GiftsPickerProps) =>
 
                 <Group position="center" spacing="lg">
                     <Text size="sm" color="dimmed">
-                        Selected: {pickedGifts.length} gifts
+                        Selected: {pickedGifts.length}/3 gifts
                     </Text>
                     <Button
                         color="red"
