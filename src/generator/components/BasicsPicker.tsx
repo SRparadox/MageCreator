@@ -15,9 +15,11 @@ const BasicsPicker = ({ character, setCharacter, nextStep }: BasicsPickerProps) 
     }, [])
 
     const [name, setName] = useState(character.name)
-    const [concept, setConcept] = useState(character.concept)
+    const [playerName, setPlayerName] = useState(character.playerName || "")
     const [chronicle, setChronicle] = useState(character.chronicle)
-    const [description, setDescription] = useState(character.description)
+    const [appearance, setAppearance] = useState(character.appearance || "")
+    const [history, setHistory] = useState(character.history || "")
+    const [notes, setNotes] = useState(character.notes || "")
 
     return (
         <div>
@@ -31,17 +33,19 @@ const BasicsPicker = ({ character, setCharacter, nextStep }: BasicsPickerProps) 
                     value={name}
                     onChange={(event) => setName(event.currentTarget.value)}
                     placeholder="Luna Nightclaw"
-                    label="Full name"
+                    label="Character Name"
                 />
 
                 <TextInput
                     style={{ width: "300px" }}
-                    value={concept}
-                    onChange={(event) => setConcept(event.currentTarget.value)}
-                    placeholder="Urban Shaman"
-                    label="Concept"
-                    description="A brief description of your character's role"
+                    value={playerName}
+                    onChange={(event) => setPlayerName(event.currentTarget.value)}
+                    placeholder="Your Name"
+                    label="Player Name"
+                    description="Your real name as the player"
                 />
+
+
 
                 <TextInput
                     style={{ width: "300px" }}
@@ -54,18 +58,51 @@ const BasicsPicker = ({ character, setCharacter, nextStep }: BasicsPickerProps) 
 
                 <Textarea
                     style={{ width: "300px" }}
-                    value={description}
-                    onChange={(event) => setDescription(event.currentTarget.value)}
-                    placeholder="A fierce warrior with ritual scars and traditional tattoos, carrying the wisdom of the spirits"
-                    label="Description & appearance of your character"
+                    value={appearance}
+                    onChange={(event) => setAppearance(event.currentTarget.value)}
+                    placeholder="Tall and lean with silver-streaked hair, piercing blue eyes, and ritual scars across their arms"
+                    label="Appearance"
+                    description="Physical description of your character"
                     autosize
-                    minRows={4}
+                    minRows={3}
                 />
+
+                <Textarea
+                    style={{ width: "300px" }}
+                    value={history}
+                    onChange={(event) => setHistory(event.currentTarget.value)}
+                    placeholder="Born in the city but called to the wild during their First Change. Trained by the Ghost Council elders..."
+                    label="History"
+                    description="Your character's background and past"
+                    autosize
+                    minRows={3}
+                />
+
+                <Textarea
+                    style={{ width: "300px" }}
+                    value={notes}
+                    onChange={(event) => setNotes(event.currentTarget.value)}
+                    placeholder="Has a fear of silver, prefers to hunt at night, speaks to spirits regularly..."
+                    label="Notes"
+                    description="Additional character notes and details"
+                    autosize
+                    minRows={3}
+                />
+
+
 
                 <Button
                     color="grape"
                     onClick={() => {
-                        setCharacter({ ...character, name, concept, chronicle, description })
+                        setCharacter({ 
+                            ...character, 
+                            name, 
+                            playerName, 
+                            chronicle, 
+                            appearance, 
+                            history, 
+                            notes
+                        })
                         nextStep()
                     }}
                 >

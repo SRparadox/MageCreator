@@ -23,7 +23,11 @@ export type Touchstone = z.infer<typeof touchstoneSchema>
 
 export const characterSchema = z.object({
     name: z.string(),
+    playerName: z.string().optional(), // New field for player name
     description: z.string(),
+    appearance: z.string().optional(), // New field for appearance
+    history: z.string().optional(), // New field for character history
+    notes: z.string().optional(), // New field for character notes
     pack: z.string(), // Replaces 'sire'
     concept: z.string(), // New Werewolf field
     chronicle: z.string(), // New Werewolf field
@@ -84,7 +88,11 @@ export type Character = z.infer<typeof characterSchema>
 export const getEmptyCharacter = (): Character => {
     return {
         name: "",
+        playerName: "", // New field for player name
         description: "",
+        appearance: "", // New field for appearance
+        history: "", // New field for character history
+        notes: "", // New field for character notes
         pack: "", // Replaces sire
         concept: "", // New Werewolf field
         chronicle: "", // New Werewolf field
