@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { RenownType, renownTypeSchema } from "./Gifts"
 
-export const riteTypeSchema = z.enum(["Common", "Social"])
+export const riteTypeSchema = z.enum(["Common", "Social", "Mystical"])
 export type RiteType = z.infer<typeof riteTypeSchema>
 
 export const riteSchema = z.object({
@@ -10,218 +10,350 @@ export const riteSchema = z.object({
     renown: renownTypeSchema.optional(), // Some rites don't require specific renown
     summary: z.string(),
     description: z.string(),
-    duration: z.string(),
-    requirements: z.string(),
+    pool: z.string(), // Dice pool for the rite
+    difficulty: z.number().optional(), // Difficulty number if specified
 })
 export type Rite = z.infer<typeof riteSchema>
 
-// Common Rites (pp. 180-186)
+// Common Rites
 export const commonRites: Rite[] = [
     {
-        name: "Abjuration",
+        name: "Rite of Abjuration",
         type: "Common",
         renown: "Honor",
-        summary: "End a spiritual possession",
-        description: "This rite forces a possessing spirit to leave its host.",
-        duration: "10 minutes",
-        requirements: "Salt circle, holy symbol or fetish"
+        summary: "This Rite will purify a person, place, or object, driving out any spiritual possessions",
+        description: "This Rite will purify a person, place, or object, driving out any spiritual possessions.",
+        pool: "Honor + Occult",
+        difficulty: 2
     },
     {
-        name: "Rage",
+        name: "Rite of Rage",
         type: "Common", 
         renown: "Glory",
-        summary: "Increase participants' Rage",
-        description: "This rite fills participants with righteous fury, increasing their Rage.",
-        duration: "30 minutes",
-        requirements: "War paint or ritual scarification"
+        summary: "Increase the Rage of the participants",
+        description: "Increase the Rage of the participants.",
+        pool: "Glory + Intimidation",
+        difficulty: 3
     },
     {
-        name: "Tranquility",
+        name: "Rite of Tranquility",
         type: "Common",
         renown: "Wisdom",
-        summary: "Reduce participants' Rage",
-        description: "This calming rite reduces the Rage of all participants.",
-        duration: "30 minutes", 
-        requirements: "Peaceful location, meditation"
+        summary: "Reduce the Rage of everyone participating",
+        description: "Reduce the Rage of everyone participating.",
+        pool: "Wisdom + Performance",
+        difficulty: 3
     },
     {
-        name: "Contrition",
+        name: "Rite of Contrition",
         type: "Common",
         renown: "Honor",
-        summary: "Make amends with a spirit or cast chagrin off",
-        description: "This rite allows the Garou to make peace with an offended spirit.",
-        duration: "1 hour",
-        requirements: "Offering appropriate to the spirit"
+        summary: "A Rite used to either make amends with a spirit or to remove chagrin",
+        description: "A Rite used to either make amends with a spirit or to remove chagrin.",
+        pool: "Honor + Etiquette",
+        difficulty: 4
     },
     {
-        name: "The Forgetful Record",
+        name: "Rite of Forgetful Record",
         type: "Common",
         renown: "Wisdom",
-        summary: "Corrupt electronically or physically recorded information",
-        description: "This rite can alter or destroy recorded information to hide supernatural activity.",
-        duration: "10 minutes",
-        requirements: "Something to burn, electronic device"
+        summary: "This Rite is used to wreak havoc on any recorded information about the Garou",
+        description: "This Rite is used to wreak havoc on any recorded information about the Garou.",
+        pool: "Wisdom + Investigation",
+        difficulty: 4
     },
     {
-        name: "The Living Caern",
+        name: "Rite of the Living Caern",
         type: "Common",
         renown: "Wisdom", 
-        summary: "Maintain a caern",
-        description: "This rite maintains the spiritual power of a caern sacred site.",
-        duration: "1 hour",
-        requirements: "Performed at a caern"
+        summary: "A Rite used to bring life to a caern, strengthening their bond and it's spiritual connection to the Umbra",
+        description: "A Rite used to bring life to a caern, strengthening their bond and it's spiritual connection to the Umbra.",
+        pool: "Wisdom + Craft",
+        difficulty: 4
     },
     {
-        name: "Shadow Passage",
+        name: "Rite of Shadow Passage",
         type: "Common",
-        summary: "Enter the Umbra",
-        description: "This rite allows passage between the physical and spirit worlds.",
-        duration: "Instant",
-        requirements: "Reflective surface or natural boundary"
+        summary: "This Rite allows a pack to open a pathway between the physical world and the Umbra",
+        description: "This Rite allows a pack to open a pathway between the physical world and the Umbra.",
+        pool: "Renown (any) + Occult",
+        difficulty: 5
     },
     {
-        name: "Dedication",
+        name: "Rite of Dedication",
         type: "Common",
-        summary: "Spiritually attune to clothing",
-        description: "This rite bonds clothing or simple tools to the Garou so they transform with them.",
-        duration: "10 minutes",
-        requirements: "Personal item"
+        summary: "A Rite used to bind clothing to Garou, so that when they shapeshift their clothes do not rip off",
+        description: "A Rite used to bind clothing to Garou, so that when they shapeshift their clothes do not rip off.",
+        pool: "N/A",
+        difficulty: 6
     },
     {
-        name: "Kinseeking",
+        name: "Rite of Kinseeking",
         type: "Common",
         renown: "Wisdom",
-        summary: "Find a nascent Garou",
-        description: "This rite helps locate humans who are about to undergo their First Change.",
-        duration: "1 hour",
-        requirements: "Map of the local area"
+        summary: "A Rite Used to locate Kin before accidents occur",
+        description: "A Rite Used to locate Kin before accidents occur.",
+        pool: "Wisdom + Investigation",
+        difficulty: 6
     },
     {
-        name: "Spirit Summoning",
+        name: "Rite of Spirit Summoning",
         type: "Common",
         renown: "Honor",
-        summary: "Call a spirit to you",
-        description: "This rite summons a specific type of spirit to the ritual location.",
-        duration: "30 minutes",
-        requirements: "Offering, appropriate location"
+        summary: "A Rite used to summon an absent, unaware, or unwilling spirit",
+        description: "A Rite used to summon an absent, unaware, or unwilling spirit.",
+        pool: "Honor + Persuasion vs Power",
+        difficulty: 7
     },
     {
-        name: "Binding",
+        name: "Rite of Binding",
         type: "Common",
         renown: "Glory",
-        summary: "Tie a spirit to a location, object, or person",
-        description: "This rite binds a spirit to serve in a specific capacity.",
-        duration: "1 hour", 
-        requirements: "Fetish materials or binding circle"
+        summary: "A Rite used to bind a spirit to a physical feature",
+        description: "A Rite used to bind a spirit to a physical feature.",
+        pool: "Glory + Occult",
+        difficulty: 8
     },
     {
-        name: "Shame",
+        name: "Rite of Shame",
         type: "Common",
-        summary: "Exacerbate chagrin",
-        description: "This rite increases feelings of shame and regret in the target.",
-        duration: "Instant",
-        requirements: "Public setting"
+        summary: "A Rite that is used as a form of punishment",
+        description: "A Rite that is used as a form of punishment.",
+        pool: "N/A",
+        difficulty: 8
     },
     {
-        name: "Patronage",
+        name: "Rite of Patronage",
         type: "Common",
-        summary: "Enjoy a Patron spirit's favor",
-        description: "This rite gains the favor and protection of a powerful spirit patron.",
-        duration: "Variable",
-        requirements: "Varies by patron spirit"
+        summary: "A Rite used to adopt a Patron Spirit",
+        description: "A Rite used to adopt a Patron Spirit.",
+        pool: "Renown (the type associated with the new Patron Spirit) + Etiquette",
+        difficulty: 9
     },
     {
-        name: "Celebration",
+        name: "Rite of Celebration",
         type: "Common",
         renown: "Honor",
-        summary: "Restore Willpower after a victory",
-        description: "This rite celebrates victory and restores the spiritual strength of participants.",
-        duration: "1 hour",
-        requirements: "Recent victory to celebrate"
+        summary: "A Rite used to celebrate victories",
+        description: "A Rite used to celebrate victories.",
+        pool: "Honor + Performance",
+        difficulty: 10
     },
     {
-        name: "Caern Building",
+        name: "Rite of Caern Building",
         type: "Common",
         renown: "Wisdom",
-        summary: "Awaken a dormant caern or dominate a hostile one",
-        description: "This powerful rite can establish new sacred sites or claim existing ones.",
-        duration: "3 hours",
-        requirements: "Spiritually significant location, pack participation"
+        summary: "A Rite usually performed by an entire sept and takes many days and nights, this results in the opening of a new caern",
+        description: "A Rite usually performed by an entire sept and takes many days and nights, this results in the opening of a new caern.",
+        pool: "Wisdom + Craft",
+        difficulty: 11
     },
     {
-        name: "The Wolf Reborn",
+        name: "Rite of the Wolf Reborn",
         type: "Common",
-        summary: "Help a participant regain the ability to shapeshift",
-        description: "This healing rite can restore shapeshifting abilities lost due to trauma or curse.",
-        duration: "3 hours",
-        requirements: "Full moon, pack participation"
+        summary: "A Rite used to help a Garou who has Lost the Wolf",
+        description: "A Rite used to help a Garou who has Lost the Wolf.",
+        pool: "Renown (highest of target) + Leadership",
+        difficulty: 11
     },
     {
-        name: "The Whispering Field",
+        name: "Rite of the Whispering Field",
         type: "Common",
         renown: "Wisdom",
-        summary: "Attune to the area around a caern",
-        description: "This rite allows the Garou to sense disturbances in the area around a sacred site.",
-        duration: "1 hour",
-        requirements: "Performed at a caern"
+        summary: "A Rite used at a caern to allow participants to become attuned to themselves and their surroundings to detect trespassers",
+        description: "A Rite used at a caern to allow participants to become attuned to themselves and their surroundings to detect trespassers.",
+        pool: "Wisdom + Survival",
+        difficulty: 11
     },
     {
-        name: "The Shrouded Glen",
+        name: "Rite of the Shrouded Glen",
         type: "Common", 
         renown: "Wisdom",
-        summary: "Hide a caern from others",
-        description: "This rite conceals a caern from discovery by enemies or the unworthy.",
-        duration: "3 hours",
-        requirements: "Performed at a caern, materials for concealment"
+        summary: "A Rite used to hide a caern from mundane individuals",
+        description: "A Rite used to hide a caern from mundane individuals.",
+        pool: "Wisdom + Craft",
+        difficulty: 11
     }
 ]
 
-// Social Rites (p. 187)
+// Social Rites
 export const socialRites: Rite[] = [
     {
-        name: "Passage",
+        name: "Rite of Passage",
         type: "Social",
-        summary: "Help fledgling Garou join society",
-        description: "This rite formally welcomes a new Garou into werewolf society.",
-        duration: "2 hours",
-        requirements: "Pack or tribe witnesses"
+        summary: "Before they are called Garou, Kin as set on a dangerous task to prove they have the means and represent what it means to be a true werewolf",
+        description: "Before they are called Garou, Kin as set on a dangerous task to prove they have the means and represent what it means to be a true werewolf.",
+        pool: "N/A",
+        difficulty: 12
     },
     {
         name: "Satire Rite",
         type: "Social",
-        summary: "Warn another Garou of their bad behavior",
-        description: "This rite uses humor and mockery to correct inappropriate behavior.",
-        duration: "30 minutes",
-        requirements: "Public audience of Garou"
+        summary: "A Rite used to ridicule another",
+        description: "A Rite used to ridicule another.",
+        pool: "N/A",
+        difficulty: 12
     },
     {
-        name: "Accomplishment",
+        name: "Rite of Accomplishment",
         type: "Social",
-        summary: "Honor another Garou's victory",
-        description: "This rite formally recognizes and celebrates another werewolf's achievements.",
-        duration: "1 hour",
-        requirements: "Witnesses to the accomplishment"
+        summary: "A rite used to honor a Garou for the trials they have endured to reach their current standing",
+        description: "A rite used to honor a Garou for the trials they have endured to reach their current standing.",
+        pool: "N/A",
+        difficulty: 12
     },
     {
         name: "Gathering for the Departed",
         type: "Social", 
-        summary: "Honor the dead",
-        description: "This funeral rite honors fallen Garou and helps their spirits find peace.",
-        duration: "3 hours",
-        requirements: "Personal items of the deceased"
+        summary: "A Rite to honor the newly dead",
+        description: "A Rite to honor the newly dead.",
+        pool: "N/A",
+        difficulty: 12
     },
     {
-        name: "The Winter Wolf",
+        name: "Rite of the Winter Wolf",
         type: "Social",
-        summary: "Help the aged and infirm find an honorable death",
-        description: "This somber rite helps elderly or mortally wounded Garou die with dignity.",
-        duration: "Variable",
-        requirements: "Consent of the dying, pack presence"
+        summary: "A Rite used for the too-wounded or too-old Garou to end their lives; if done by two members at the same time, they fight to the death in ritual combat",
+        description: "A Rite used for the too-wounded or too-old Garou to end their lives; if done by two members at the same time, they fight to the death in ritual combat.",
+        pool: "N/A",
+        difficulty: 12
+    },
+    {
+        name: "Rite of the Ban Shared",
+        type: "Social",
+        summary: "All participants in this rite agree to adhere to a Ban not of their own tribe. There are not any mechanical interactions tied to this, purely role-play",
+        description: "All participants in this rite agree to adhere to a Ban not of their own tribe. There are not any mechanical interactions tied to this, purely role-play.",
+        pool: "N/A",
+        difficulty: 13
+    },
+    {
+        name: "Cleansing Rite",
+        type: "Social",
+        summary: "A rite that uses sacred materials to cleanse the spirit and physical form of a Garou. Often done after encounters with powerful Banes or Black Spiral Dancers",
+        description: "A rite that uses sacred materials to cleanse the spirit and physical form of a Garou. Often done after encounters with powerful Banes or Black Spiral Dancers.",
+        pool: "N/A",
+        difficulty: 13
+    },
+    {
+        name: "The Long Vigil",
+        type: "Social",
+        summary: "A rite in which all associated packs gather together, temporarily putting aside all animosity to celebrate Helios, praise Luna and tell the tales of their victories over the past several years",
+        description: "A rite in which all associated packs gather together, temporarily putting aside all animosity to celebrate Helios, praise Luna and tell the tales of their victories over the past several years. When all is said and done, all involved burn their trophies and make a final appeal to Luna and Helios to guard Gaia to the last.",
+        pool: "N/A",
+        difficulty: 13
+    },
+    {
+        name: "Pledging Rite",
+        type: "Social",
+        summary: "A rite that is used by a Pack to define a specific goal such as \"Destroy my local oil plant\" - When the goal is completed ST's may grant additional glory or mitigate chagrin",
+        description: "A rite that is used by a Pack to define a specific goal such as \"Destroy my local oil plant\" - When the goal is completed ST's may grant additional glory or mitigate chagrin.",
+        pool: "N/A",
+        difficulty: 14
+    },
+    {
+        name: "The Renewal Circle",
+        type: "Social",
+        summary: "A rite in which a Garou who has been struggling emotionally or spiritually is joined by their allies and friends in silence, awaiting their moment to support their friend in need",
+        description: "A rite in which a Garou who has been struggling emotionally or spiritually is joined by their allies and friends in silence, awaiting their moment to support their friend in need.",
+        pool: "N/A",
+        difficulty: 14
+    }
+]
+
+// Mystical Rites
+export const mysticalRites: Rite[] = [
+    {
+        name: "Rite of the Borne Word",
+        type: "Mystical",
+        renown: "Honor",
+        summary: "Use a friendly spirit to deliver a secure message. The spirit must be capable of traveling swiftly, i.e a bird spirit, a wind spirit, etc",
+        description: "Use a friendly spirit to deliver a secure message. The spirit must be capable of traveling swiftly, i.e a bird spirit, a wind spirit, etc.",
+        pool: "Honor + Etiquette",
+        difficulty: 15
+    },
+    {
+        name: "Rite of the Broken Sun (Broken Son)",
+        type: "Mystical",
+        renown: "Honor",
+        summary: "A rite used as a severe form of punishment, usually after the target has undergone several Rite of Shames. A successful use of this rite stops the targets ability to shapeshift and call on mystical rites besides the Rite of Contrition",
+        description: "A rite used as a severe form of punishment, usually after the target has undergone several Rite of Shames. A successful use of this rite stops the targets ability to shapeshift and call on mystical rites besides the Rite of Contrition.",
+        pool: "Honor + Occult",
+        difficulty: 15
+    },
+    {
+        name: "Rite of Caging",
+        type: "Mystical",
+        renown: "Wisdom",
+        summary: "This rite makes it more difficult for a creature in the physical world to interact with the Umbra. It can even remove someone from the Umbra. Cannot be used on spirits",
+        description: "This rite makes it more difficult for a creature in the physical world to interact with the Umbra. It can even remove someone from the Umbra. Cannot be used on spirits.",
+        pool: "Wisdom + Awareness",
+        difficulty: 15
+    },
+    {
+        name: "Rite of Chiminage",
+        type: "Mystical",
+        renown: "Wisdom",
+        summary: "This rite allows a Garou to better understand the wants and needs of a spirit",
+        description: "This rite allows a Garou to better understand the wants and needs of a spirit.",
+        pool: "Wisdom + Etiquette",
+        difficulty: 16
+    },
+    {
+        name: "Rite of the Grim Reach",
+        type: "Mystical",
+        renown: "Glory",
+        summary: "This rite turns a large area more hostile and even dangerous. Can be used to protect caerns or places important to Garou",
+        description: "This rite turns a large area more hostile and even dangerous. Can be used to protect caerns or places important to Garou.",
+        pool: "Glory + Survival",
+        difficulty: 16
+    },
+    {
+        name: "Rite of the Living Tale",
+        type: "Mystical",
+        renown: "Wisdom",
+        summary: "This rite adds an olfactory dimension to the telling of a story, making it all the more immersive for your listeners. Especially appreciated by Lupus-born",
+        description: "This rite adds an olfactory dimension to the telling of a story, making it all the more immersive for your listeners. Especially appreciated by Lupus-born.",
+        pool: "Wisdom + Survival",
+        difficulty: 16
+    },
+    {
+        name: "Rite of the Moon's Fickle Grace",
+        type: "Mystical",
+        renown: "Glory",
+        summary: "The performer asks Luna herself for a bit of luck. It can only be performed under a full moon and has the potential to both help and harm you",
+        description: "The performer asks Luna herself for a bit of luck. It can only be performed under a full moon and has the potential to both help and harm you.",
+        pool: "Glory + Performance",
+        difficulty: 17
+    },
+    {
+        name: "Rite of Renunciation",
+        type: "Mystical",
+        summary: "This rite allows a Garou to gracefully leave their tribe, becoming Forsworn when completed",
+        description: "This rite allows a Garou to gracefully leave their tribe, becoming Forsworn when completed.",
+        pool: "None",
+        difficulty: 17
+    },
+    {
+        name: "Rite of the Sacred Scar",
+        type: "Mystical",
+        summary: "This rite marks a Garou's flesh with a mystical scar or tattoo related to their renown. This marking allows for an additional point of renown on all gifts and Rites appropriate to the glyph they have been marked with",
+        description: "This rite marks a Garou's flesh with a mystical scar or tattoo related to their renown. This marking allows for an additional point of renown on all gifts and Rites appropriate to the glyph they have been marked with.",
+        pool: "Any appropriate renown + Craft",
+        difficulty: 13
+    },
+    {
+        name: "Rite of Shared Fury",
+        type: "Mystical",
+        renown: "Honor",
+        summary: "A rite that allows the participants to pool their rage and then redistribute it amongst all involved. Requires a performance of violence or confrontation between members",
+        description: "A rite that allows the participants to pool their rage and then redistribute it amongst all involved. Requires a performance of violence or confrontation between members.",
+        pool: "Honor + Politics",
+        difficulty: 13
     }
 ]
 
 // All rites combined
-export const allRites = [...commonRites, ...socialRites]
+export const allRites = [...commonRites, ...socialRites, ...mysticalRites]
 
 // Helper functions
 export const getRitesByType = (type: RiteType): Rite[] => {

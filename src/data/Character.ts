@@ -1,5 +1,6 @@
 import { z } from "zod"
 import { Power, powerSchema, ritualSchema } from "./Disciplines"
+import { riteSchema } from "./Rites"
 import { specialtySchema } from "./Specialties"
 import { skillsSchema } from "./Skills"
 import { attributesSchema } from "./Attributes"
@@ -51,7 +52,7 @@ export const characterSchema = z.object({
     // Werewolf fields
     availableGiftNames: giftNameSchema.array(), // Replaces availableDisciplineNames
     gifts: powerSchema.array(), // Replaces disciplines
-    rites: ritualSchema.array(), // Werewolf rites (different from rituals)
+    rites: riteSchema.array(), // Werewolf rites (different from rituals)
     rituals: ritualSchema.array(), // Blood Sorcery rituals (for backward compatibility)
     
     // For backward compatibility

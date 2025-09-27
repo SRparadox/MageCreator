@@ -4,6 +4,7 @@ import AttributePicker from "./components/AttributePicker"
 import BasicsPicker from "./components/BasicsPicker"
 import TribePicker from "./components/TribePicker"
 import GiftsPicker from "./components/GiftsPicker"
+import RitesPicker from "./components/RitesPicker"
 import Final from "./components/Final"
 import AuspicePicker from "./components/AuspicePicker"
 import Intro from "./components/Intro"
@@ -95,7 +96,7 @@ const Generator = ({ character, setCharacter, selectedStep, setSelectedStep }: G
                 )
             case 7:
                 return (
-                    <TouchstonePicker
+                    <RitesPicker
                         character={character}
                         setCharacter={setCharacter}
                         nextStep={() => {
@@ -105,7 +106,7 @@ const Generator = ({ character, setCharacter, selectedStep, setSelectedStep }: G
                 )
             case 8:
                 return (
-                    <MeritsAndFlawsPicker
+                    <TouchstonePicker
                         character={character}
                         setCharacter={setCharacter}
                         nextStep={() => {
@@ -114,6 +115,16 @@ const Generator = ({ character, setCharacter, selectedStep, setSelectedStep }: G
                     />
                 )
             case 9:
+                return (
+                    <MeritsAndFlawsPicker
+                        character={character}
+                        setCharacter={setCharacter}
+                        nextStep={() => {
+                            setSelectedStep(selectedStep + 1)
+                        }}
+                    />
+                )
+            case 10:
                 return <Final character={character} setCharacter={setCharacter} setSelectedStep={setSelectedStep} />
             default:
                 return <Text size={"xl"}>{`Error: Step ${selectedStep} is not implemented`}</Text>

@@ -18,6 +18,7 @@ const AsideBar = ({ selectedStep, setSelectedStep, character }: AsideBarProps) =
         "auspice", // Werewolf auspice selection
         "name",
         "disciplines", // Maps to gifts
+        "rites", // Werewolf rites
         "touchstones",
         "merits",
     ] as (keyof Character)[]
@@ -37,7 +38,7 @@ const AsideBar = ({ selectedStep, setSelectedStep, character }: AsideBarProps) =
                 color="grape"
                 orientation="vertical"
                 active={selectedStep}
-                onStepClick={(x) => {
+                onStepClick={(x: number) => {
                     setSelectedStep(x)
                 }}
                 breakpoint="sm"
@@ -46,9 +47,10 @@ const AsideBar = ({ selectedStep, setSelectedStep, character }: AsideBarProps) =
                     {" "}
                 </Stepper.Step>
                 {stepperKeys.map((title) => {
-                    let displayTitle = title === "clan" ? "Tribe" : upcase(title)
+                    let displayTitle = title === "clan" ? "Tribe" : upcase(title as string)
                     if (title === "auspice") displayTitle = "Auspice"
                     if (title === "disciplines") displayTitle = "Gifts"
+                    if (title === "rites") displayTitle = "Rites"
                     
                     return (
                         <Stepper.Step
@@ -61,7 +63,7 @@ const AsideBar = ({ selectedStep, setSelectedStep, character }: AsideBarProps) =
                         </Stepper.Step>
                     )
                 })}
-                <Stepper.Step key={"Final"} label={"Final"} description="" disabled={isDefault(character, "disciplines")}>
+                <Stepper.Step key={"Final"} label={"Final"} description="" disabled={isDefault(character, "disciplines") || isDefault(character, "rites")}>
                     {" "}
                 </Stepper.Step>
             </Stepper>

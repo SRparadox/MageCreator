@@ -5,6 +5,7 @@ import AttributesDisplay from "./components/AttributesDisplay"
 import BasicsDisplay from "./components/BasicsDisplay"
 import DisciplineDisplay from "./components/DisciplinesDisplay"
 import MeritsAndFlawsDisplay from "./components/MeritsAndFlawsDisplay"
+import RitesDisplay from "./components/RitesDisplay"
 import SkillDisplay from "./components/SkillsDisplay"
 import TouchstoneDisplay from "./components/TouchstoneDisplay"
 import { globals } from "../globals"
@@ -36,6 +37,7 @@ const Sidebar = ({ character }: SidebarProps) => {
                 {notDefault(character, "gifts") ? (
                     <DisciplineDisplay powers={character.gifts} rituals={character.rituals} />
                 ) : null}
+                {notDefault(character, "rites") ? <RitesDisplay rites={character.rites} /> : null}
                 {notDefault(character, "touchstones") ? <TouchstoneDisplay touchstones={character.touchstones} /> : null}
                 {notDefault(character, "merits") || notDefault(character, "flaws") ? (
                     <MeritsAndFlawsDisplay merits={character.merits} flaws={character.flaws} />
