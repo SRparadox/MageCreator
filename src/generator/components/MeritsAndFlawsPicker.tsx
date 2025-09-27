@@ -31,14 +31,12 @@ const MeritsAndFlawsPicker = ({ character, setCharacter, nextStep }: MeritsAndFl
     const usedMeritsLevel = pickedMeritsAndFlaws.filter(m => m.type === "merit").reduce((acc: number, { level }) => acc + level, 0)
     const usedFlawsLevel = pickedMeritsAndFlaws.filter(f => f.type === "flaw").reduce((acc: number, { level }) => acc + level, 0)
 
-    // Merit points available = 7 normally, 9 if you take 2 dots in flaws
-    const maxMerits = usedFlawsLevel === 2 ? 9 : 7
-    const remainingMerits = maxMerits - usedMeritsLevel
-    
-    // Maximum 2 dots in flaws (optional)
-    const maxFlaws = 2
-    const remainingFlaws = maxFlaws - usedFlawsLevel
-    const canProceed = usedMeritsLevel <= maxMerits && usedFlawsLevel <= maxFlaws
+    // Must pick exactly 7 merit dots and exactly 2 flaw dots (independent)
+    const requiredMerits = 7
+    const requiredFlaws = 2
+    const remainingMerits = requiredMerits - usedMeritsLevel
+    const remainingFlaws = requiredFlaws - usedFlawsLevel
+    const canProceed = usedMeritsLevel === requiredMerits && usedFlawsLevel === requiredFlaws
 
     const getMeritOrFlawLine = (meritOrFlaw: MeritOrFlaw, type: "flaw" | "merit"): JSX.Element => {
         const buttonColor = type === "flaw" ? "red" : "green"
@@ -51,7 +49,7 @@ const MeritsAndFlawsPicker = ({ character, setCharacter, nextStep }: MeritsAndFl
             const cost = level
             const canAfford = type === "merit" ? 
                 (remainingMerits + wasPickedLevel >= cost) : 
-                (remainingFlaws + wasPickedLevel >= cost && usedFlawsLevel - wasPickedLevel + cost <= maxFlaws)
+                (remainingFlaws + wasPickedLevel >= cost && usedFlawsLevel - wasPickedLevel + cost <= requiredFlaws)
                 
             return (
                 <Button
@@ -105,17 +103,12 @@ const MeritsAndFlawsPicker = ({ character, setCharacter, nextStep }: MeritsAndFl
     return (
         <Stack align="center" mt={100}>
             <div>
-                <Text fz={globals.largeFontSize} ta={"center"}>
-                    Merit Points: {usedMeritsLevel} / {maxMerits} {usedFlawsLevel === 2 ? "(Bonus from 2 flaws)" : ""}
+                <Text fz={globals.largeFontSize} ta={"center"} color={usedMeritsLevel === requiredMerits ? "green" : "red"}>
+                    Merit Points Required: 7 | Current: {usedMeritsLevel} | Remaining: {remainingMerits}
                 </Text>
-                <Text fz={globals.largeFontSize} ta={"center"}>
-                    Flaw Points: {usedFlawsLevel} / {maxFlaws} (Optional - taking 2 flaws gives +2 merit points)
+                <Text fz={globals.largeFontSize} ta={"center"} color={usedFlawsLevel === requiredFlaws ? "green" : "red"}>
+                    Flaw Points Required: 2 | Current: {usedFlawsLevel} | Remaining: {remainingFlaws}
                 </Text>
-                {usedMeritsLevel > maxMerits && (
-                    <Text fz={globals.largeFontSize} ta={"center"} color="red">
-                        Too many merit points! Remove {usedMeritsLevel - maxMerits} points
-                    </Text>
-                )}
             </div>
 
             <ScrollArea h={height - 330} w={"100%"} p={20}>
@@ -158,8 +151,8 @@ const MeritsAndFlawsPicker = ({ character, setCharacter, nextStep }: MeritsAndFl
                 }}
             >
                 {canProceed ? "Confirm" : 
-                 usedMeritsLevel > maxMerits ? `Too many merits (${usedMeritsLevel}/${maxMerits})` :
-                 usedFlawsLevel > maxFlaws ? `Too many flaws (${usedFlawsLevel}/${maxFlaws})` : 
+                 usedMeritsLevel !== requiredMerits ? `Need exactly ${requiredMerits} merit dots (have ${usedMeritsLevel})` :
+                 usedFlawsLevel !== requiredFlaws ? `Need exactly ${requiredFlaws} flaw dots (have ${usedFlawsLevel})` : 
                  "Confirm"}
             </Button>
         </Stack>
