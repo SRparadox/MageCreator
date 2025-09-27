@@ -43,9 +43,7 @@ export const testTemplate = async (basePdf: string) => {
             form.getTextField("Chronicle").setText("")
             form.getTextField("Patron").setText("")
         } catch (e) {
-            form.getTextField("Predator").setText("")
-            form.getTextField("Ambition").setText("")
-            form.getTextField("Sire").setText("")
+            // Werewolf fields don't exist in this PDF
         }
     } catch (err) {
         return {
@@ -200,11 +198,11 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
     form.getTextField("Name").setText(character.name)
     
     // Auspice
-    const auspiceName = character.auspice || character.predatorType.name
+    const auspiceName = character.auspice
     try {
-        form.getTextField("Auspice")?.setText(auspiceName)
+        form.getTextField("Auspice")?.setText(auspiceName || "")
     } catch (e) {
-        form.getTextField("Predator")?.setText(auspiceName)
+        // Auspice field doesn't exist in this PDF
     }
     
     // Player Name
@@ -227,8 +225,7 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
     try {
         form.getTextField("Chronicle").setText(character.chronicle || "")
     } catch (e) {
-        // Fallback if Chronicle field doesn't exist  
-        form.getTextField("Ambition")?.setText(character.chronicle || "")
+        // Chronicle field doesn't exist in this PDF
     }
     
     // Patron (from tribe data)
@@ -240,8 +237,7 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
     try {
         form.getTextField("Patron")?.setText(patronName)
     } catch (e) {
-        // Fallback if Patron field doesn't exist
-        form.getTextField("Sire")?.setText(patronName)
+        // Patron field doesn't exist in this PDF
     }
     
     // For werewolf, we use ban and favor instead of bane and compulsion
@@ -261,7 +257,6 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
             try {
                 form.getTextField("ClanBane")?.setText(banText)
                 form.getTextField("ClanCompulsion")?.setText(favorText)
-                form.getTextField("Sire")?.setText(patronText)
             } catch (e2) {
                 // If neither work, just continue
             }
@@ -278,12 +273,11 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
         }
     }
 
-    // Pack info instead of sire
+    // Pack info
     try {
         form.getTextField("Pack").setText(character.pack || "")
     } catch (e) {
-        // Fallback to Sire field if Pack doesn't exist
-        form.getTextField("Sire")?.setText(character.pack || "")
+        // Pack field doesn't exist in this PDF
     }
 
     // Gifts and Rites - using new field naming pattern
