@@ -396,8 +396,22 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
     }
     
     // Map specific fields according to PDF structure
-    if (character.appearance) {
-        flavorAndBansText += `Appearance:\n${character.appearance}\n\n`
+    
+    // Appearance goes to sge field and also to pcDescription
+    try {
+        form.getTextField("sge")?.setText(character.appearance || "")
+    } catch (e) {
+        // Fallback if sge doesn't exist
+        if (character.appearance) {
+            flavorAndBansText += `Appearance:\n${character.appearance}\n\n`
+        }
+    }
+    
+    // Also put appearance in pcDescription
+    try {
+        form.getTextField("pcDescription")?.setText(character.appearance || "")
+    } catch (e) {
+        // pcDescription doesn't exist
     }
     
     // History goes to pcConcept field
