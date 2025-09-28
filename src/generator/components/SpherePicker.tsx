@@ -1,7 +1,7 @@
-import { Box, Button, Card, Center, Grid, Group, Image, Stack, Text, Title, NumberInput, Alert } from "@mantine/core"
+import { Box, Button, Card, Center, Group, Image, Stack, Text, Title, Alert, ActionIcon, Grid } from "@mantine/core"
 import { useState, useEffect } from "react"
 import { Character } from "../../data/Character"
-import { spheres, Sphere, getEmptySpheres, Spheres } from "../../data/Spheres"
+import { spheres, Sphere, getEmptySpheres, Spheres, SphereName } from "../../data/Spheres"
 import { IconInfoCircle } from "@tabler/icons-react"
 
 export type SpherePickerProps = {
@@ -11,36 +11,57 @@ export type SpherePickerProps = {
 }
 
 const SpherePicker = ({ character, setCharacter, nextStep }: SpherePickerProps) => {
-    const [selectedSpheres, setSelectedSpheres] = useState<Spheres>(character.spheres || getEmptySpheres())
-    const [affinityChosen, setAffinityChosen] = useState<boolean>(false)
+    const [selectedSpheres, setSelectedSpheres] = useState(character.spheres || getEmptySpheres())
+    const [affinity, setAffinity] = useState(character.affinitySphere || null)
     
-    const totalPoints = Object.values(selectedSpheres).reduce((sum, value) => sum + value, 0)
+    const totalPoints = (Object.values(selectedSpheres) as number[]).reduce((sum, value) => sum + value, 0)
     const maxPoints = 7
     const remainingPoints = maxPoints - totalPoints
 
-    useEffect(() => {
-        // Check if any sphere has points assigned (indicating affinity chosen)
-        const hasAffinity = Object.values(selectedSpheres).some(value => value > 0)
-        setAffinityChosen(hasAffinity)
-    }, [selectedSpheres])
+    // Organize spheres by columns as requested
+    const sphereColumns = [
+        ['correspondence', 'entropy', 'forces'],
+        ['life', 'matter', 'mind'],
+        ['prime', 'spirit', 'time']
+    ]
 
-    const handleSphereChange = (sphereName: string, value: number) => {
-        if (value < 0) return
+    const handleSphereChange = (sphereName: SphereName, dots: number) => {
+        if (dots < 0 || dots > 5) return
         
-        const newSpheres = { ...selectedSpheres, [sphereName]: value }
-        const newTotal = Object.values(newSpheres).reduce((sum, val) => sum + val, 0)
+        const currentValue = selectedSpheres[sphereName]
+        const pointDifference = dots - currentValue
         
-        if (newTotal <= maxPoints) {
-            setSelectedSpheres(newSpheres)
+        // Check if we have enough points
+        if (pointDifference > remainingPoints) return
+        
+        const newSpheres = { ...selectedSpheres, [sphereName]: dots }
+        setSelectedSpheres(newSpheres)
+        setCharacter({
+            ...character,
+            spheres: newSpheres,
+        })
+    }
+
+    const handleAffinityToggle = (sphereName: SphereName) => {
+        if (affinity === sphereName) {
+            // Unselect affinity if clicking the same one
+            setAffinity(null)
             setCharacter({
                 ...character,
-                spheres: newSpheres,
+                affinitySphere: undefined,
+            })
+        } else {
+            // Select new affinity
+            setAffinity(sphereName)
+            setCharacter({
+                ...character,
+                affinitySphere: sphereName,
             })
         }
     }
 
     const handleNext = () => {
-        if (affinityChosen && totalPoints <= maxPoints) {
+        if (affinity && totalPoints === maxPoints) {
             nextStep()
         }
     }
@@ -49,8 +70,93 @@ const SpherePicker = ({ character, setCharacter, nextStep }: SpherePickerProps) 
         return `/src/resources/spheres/${sphereName}.webp`
     }
 
-    const canIncrease = (currentValue: number) => {
-        return currentValue < 5 && remainingPoints > 0
+    const getSphereByName = (name: string): Sphere | undefined => {
+        return spheres.find(sphere => sphere.name === name)
+    }
+
+    const DotSelector = ({ sphereName, currentValue }: { sphereName: SphereName, currentValue: number }) => {
+        return (
+            <Group justify="center" gap={4}>
+                {[1, 2, 3, 4, 5].map((dotValue) => {
+                    const canSelect = dotValue <= currentValue || (dotValue === currentValue + 1 && remainingPoints > 0)
+                    const isSelected = dotValue <= currentValue
+                    
+                    return (
+                        <Box
+                            key={dotValue}
+                            onClick={() => {
+                                if (isSelected) {
+                                    // If clicking on a filled dot, set to that value minus 1
+                                    handleSphereChange(sphereName, dotValue - 1)
+                                } else if (canSelect) {
+                                    // If clicking on an empty dot we can select, set to that value
+                                    handleSphereChange(sphereName, dotValue)
+                                }
+                            }}
+                            style={{
+                                width: 20,
+                                height: 20,
+                                borderRadius: '50%',
+                                backgroundColor: isSelected ? 'var(--mantine-color-blue-6)' : 'transparent',
+                                border: '2px solid var(--mantine-color-gray-5)',
+                                cursor: (canSelect || isSelected) ? 'pointer' : 'not-allowed',
+                                opacity: (!canSelect && !isSelected) ? 0.3 : 1,
+                            }}
+                        />
+                    )
+                })}
+            </Group>
+        )
+    }
+
+    const SphereCard = ({ sphereName }: { sphereName: string }) => {
+        const sphere = getSphereByName(sphereName)
+        if (!sphere) return null
+
+        const currentValue = selectedSpheres[sphere.name as keyof Spheres]
+        const isAffinitySelected = affinity === sphere.name
+        const isAffinityDisabled = affinity !== null && affinity !== sphere.name
+
+        return (
+            <Card
+                shadow="md"
+                padding="lg"
+                radius="md"
+                withBorder
+                h="100%"
+            >
+                <Stack align="center" gap="md" h="100%">
+                    <Image
+                        src={getSphereImage(sphere.name)}
+                        alt={sphere.name}
+                        w={80}
+                        h={80}
+                        style={{ objectFit: "contain" }}
+                    />
+                    <Title order={4} ta="center" tt="capitalize">
+                        {sphere.name}
+                    </Title>
+                    <Text size="xs" ta="center" c="dimmed" style={{ minHeight: '60px' }}>
+                        {sphere.description}
+                    </Text>
+                    
+                    <Button
+                        variant={isAffinitySelected ? "filled" : "outline"}
+                        color={isAffinitySelected ? "blue" : "gray"}
+                        size="sm"
+                        onClick={() => handleAffinityToggle(sphere.name as SphereName)}
+                        disabled={isAffinityDisabled}
+                        style={{
+                            opacity: isAffinityDisabled ? 0.5 : 1
+                        }}
+                    >
+                        {isAffinitySelected ? "Affinity Selected" : "Set as Affinity"}
+                    </Button>
+                    
+                    <DotSelector sphereName={sphere.name as SphereName} currentValue={currentValue} />
+                </Stack>
+            </Card>
+        )
     }
 
     return (
@@ -58,69 +164,39 @@ const SpherePicker = ({ character, setCharacter, nextStep }: SpherePickerProps) 
             <Stack align="center" gap="xl" w="100%" maw={1200}>
                 <Title order={1} ta="center">Choose Your Spheres</Title>
                 <Text size="lg" ta="center" c="dimmed" maw={800}>
-                    At the beginning of your mage journey, you choose an affinity among the 9 spheres. 
-                    You may distribute 7 dots amongst the spheres of your choosing.
+                    Choose one sphere as your affinity and distribute 7 dots among all spheres.
                 </Text>
                 
                 <Alert icon={<IconInfoCircle size={16} />} title="Sphere Distribution" color="blue">
                     <Text size="sm">
-                        Points remaining: <strong>{remainingPoints}</strong> / {maxPoints}
+                        Points remaining: {remainingPoints} / {maxPoints}
+                        {affinity && (
+                            <Text component="span" style={{ display: 'block', marginTop: 4 }}>
+                                Affinity: <Text component="span" fw={500} tt="capitalize">{affinity}</Text>
+                            </Text>
+                        )}
                     </Text>
                 </Alert>
                 
-                <Grid w="100%" gutter="lg" justify="center">
-                    {spheres.map((sphere: Sphere) => {
-                        const currentValue = selectedSpheres[sphere.name as keyof Spheres]
-                        return (
-                            <Grid.Col key={sphere.name} span={{ base: 12, sm: 6, md: 4, lg: 4 }}>
-                                <Card
-                                    shadow="md"
-                                    padding="lg"
-                                    radius="md"
-                                    withBorder
-                                    h="100%"
-                                >
-                                    <Stack align="center" gap="md" h="100%">
-                                        <Image
-                                            src={getSphereImage(sphere.name)}
-                                            alt={sphere.name}
-                                            w={60}
-                                            h={60}
-                                            style={{ objectFit: "contain" }}
-                                        />
-                                        <Title order={4} ta="center" tt="capitalize">
-                                            {sphere.name}
-                                        </Title>
-                                        <Text size="sm" fw={500} ta="center" c="blue">
-                                            {sphere.field}
-                                        </Text>
-                                        <Text size="xs" ta="center" c="dimmed" style={{ flex: 1 }}>
-                                            {sphere.description}
-                                        </Text>
-                                        <NumberInput
-                                            value={currentValue}
-                                            onChange={(value) => handleSphereChange(sphere.name, Number(value) || 0)}
-                                            min={0}
-                                            max={5}
-                                            size="md"
-                                            w="100%"
-                                            label="Dots"
-                                            disabled={currentValue === 0 && remainingPoints === 0}
-                                        />
-                                    </Stack>
-                                </Card>
-                            </Grid.Col>
-                        )
-                    })}
+                <Grid w="100%" gutter="lg">
+                    {sphereColumns.map((column, columnIndex) => (
+                        <Grid.Col key={columnIndex} span={4}>
+                            <Stack gap="md">
+                                {column.map((sphereName) => (
+                                    <SphereCard sphereName={sphereName} />
+                                ))}
+                            </Stack>
+                        </Grid.Col>
+                    ))}
                 </Grid>
 
                 <Group justify="center" mt="xl">
                     <Button
                         size="lg"
                         onClick={handleNext}
-                        disabled={!affinityChosen || remainingPoints < 0}
+                        disabled={!affinity || totalPoints !== maxPoints}
                     >
-                        Continue
+                        Continue ({totalPoints}/7 points used)
                     </Button>
                 </Group>
             </Stack>
