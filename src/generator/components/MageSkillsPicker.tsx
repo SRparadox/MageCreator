@@ -1,6 +1,7 @@
-import { Button, Divider, Grid, Group, ScrollArea, Space, Text, Tooltip } from "@mantine/core"
+import { Box, Button, Divider, Grid, Group, ScrollArea, Space, Text, Tooltip } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
 import { useEffect, useState } from "react"
+import React from "react"
 import ReactGA from "react-ga4"
 import { Character } from "../../data/Character"
 import { Skills, SkillsKey, emptySkills, skillsDescriptions, skillsKeySchema } from "../../data/Skills"
@@ -52,35 +53,22 @@ const distributionByType: Record<DistributionKey, SkillDistribution> = {
     },
 }
 
-const MageSkillsPicker = ({ character, setCharacter, nextStep }: MageSkillsPickerProps) => {
-    const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false)
-    const [pickedDistribution, setPickedDistribution] = useState<DistributionKey | null>(null)
-    const [pickedSkills, setPickedSkills] = useState<SkillsSetting>({
-        special: [],
-        strongest: [],
-        decent: [],
-        acceptable: [],
-    })
+const getAll = (skillSetting: SkillsSetting): SkillsKey[] => {
+    return Object.values(skillSetting).reduce((acc, s) => [...acc, ...s], [])
+}
 
+const MageSkillsPicker = ({ character, setCharacter, nextStep }: MageSkillsPickerProps) => {
     const phoneScreen = globals.isPhoneScreen
-    const smallScreen = globals.isSmallScreen
-    const height = globals.height
-    const heightBreakPoint = 900
 
     useEffect(() => {
-        ReactGA.send({ hitType: "pageview", page: "/skills" })
+        ReactGA.send({ hitType: "pageview", title: "Mage Skills Picker" })
     }, [])
 
-    const distr = pickedDistribution ? distributionByType[pickedDistribution] : { strongest: 0, decent: 0, acceptable: 0, special: 0 }
-
-    const skills: Skills = (() => {
-        let s = { ...emptySkills }
-        pickedSkills.special.forEach((skill) => (s[skill] = 4))
-        pickedSkills.strongest.forEach((skill) => (s[skill] = 3))
-        pickedSkills.decent.forEach((skill) => (s[skill] = 2))
-        pickedSkills.acceptable.forEach((skill) => (s[skill] = 1))
-        return s
-    })()
+    const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false)
+    const [skills, setSkills] = useState(emptySkills)
+    const [pickedSkills, setPickedSkills] = useState({ special: [], strongest: [], decent: [], acceptable: [] })
+    const [pickedDistribution, setPickedDistribution] = useState(null)
+    const distr = pickedDistribution ? distributionByType[pickedDistribution] : { special: 0, strongest: 0, decent: 0, acceptable: 0 }
 
     const getAll = (pickedSkills: SkillsSetting): SkillsKey[] => [
         ...pickedSkills.special,
@@ -91,19 +79,83 @@ const MageSkillsPicker = ({ character, setCharacter, nextStep }: MageSkillsPicke
 
     const skillLabels = Object.keys(emptySkills) as SkillsKey[]
 
-    const createSkillButton = (skill: SkillsKey, i: number) => {
-        const alreadyPicked = getAll(pickedSkills).includes(skill)
+    const createButton = (skill: SkillsKey, i: number) => {
+        const alreadyPicked = [
+            ...pickedSkills.special,
+            ...pickedSkills.strongest,
+            ...pickedSkills.decent,
+            ...pickedSkills.acceptable,
+        ].includes(skill)
 
-        const onClick = () => {
-            if (alreadyPicked) return
-            if (pickedSkills.special.length < distr.special) {
+        let onClick: () => void
+        if (alreadyPicked) {
+            onClick = () => {
+                setPickedSkills({
+                    special: pickedSkills.special.filter((it: SkillsKey) => it !== skill),
+                    strongest: pickedSkills.strongest.filter((it: SkillsKey) => it !== skill),
+                    decent: pickedSkills.decent.filter((it: SkillsKey) => it !== skill),
+                    acceptable: pickedSkills.acceptable.filter((it: SkillsKey) => it !== skill),
+                })
+            }
+        } else if (pickedSkills.special.length < distr.special) {
+            onClick = () => {
                 setPickedSkills({ ...pickedSkills, special: [...pickedSkills.special, skill] })
-            } else if (pickedSkills.strongest.length < distr.strongest) {
+            }
+        } else if (pickedSkills.strongest.length < distr.strongest) {
+            onClick = () => {
                 setPickedSkills({ ...pickedSkills, strongest: [...pickedSkills.strongest, skill] })
-            } else if (pickedSkills.decent.length < distr.decent) {
+            }
+        } else if (pickedSkills.decent.length < distr.decent) {
+            onClick = () => {
                 setPickedSkills({ ...pickedSkills, decent: [...pickedSkills.decent, skill] })
-            } else if (pickedSkills.acceptable.length < distr.acceptable) {
+            }
+        } else if (pickedSkills.acceptable.length < distr.acceptable - 1) {
+            // -1 so the very last pick opens modal
+            onClick = () => {
                 setPickedSkills({ ...pickedSkills, acceptable: [...pickedSkills.acceptable, skill] })
+            }
+        } else {
+            const finalPick = { ...pickedSkills, acceptable: [...pickedSkills.acceptable, skill] }
+            onClick = () => {
+                const skillsToSet: Skills = {
+                    athletics: 0,
+                    brawl: 0,
+                    craft: 0,
+                    drive: 0,
+                    firearms: 0,
+                    melee: 0,
+                    larceny: 0,
+                    stealth: 0,
+                    survival: 0,
+
+                    "animal ken": 0,
+                    etiquette: 0,
+                    insight: 0,
+                    intimidation: 0,
+                    leadership: 0,
+                    performance: 0,
+                    persuasion: 0,
+                    streetwise: 0,
+                    subterfuge: 0,
+
+                    academics: 0,
+                    awareness: 0,
+                    finance: 0,
+                    investigation: 0,
+                    medicine: 0,
+                    occult: 0,
+                    politics: 0,
+                    science: 0,
+                    technology: 0,
+                }
+                finalPick.special.forEach((special: SkillsKey) => (skillsToSet[special] = 4))
+                finalPick.strongest.forEach((strongest: SkillsKey) => (skillsToSet[strongest] = 3))
+                finalPick.decent.forEach((decent: SkillsKey) => (skillsToSet[decent] = 2))
+                finalPick.acceptable.forEach((acceptable: SkillsKey) => (skillsToSet[acceptable] = 1))
+
+                setPickedSkills(finalPick)
+                setSkills(skillsToSet)
+
                 openModal()
             }
         }
@@ -216,25 +268,54 @@ const MageSkillsPicker = ({ character, setCharacter, nextStep }: MageSkillsPicke
                     "survival",
                     "subterfuge",
                     "technology",
-                ].map((skill, i) => createSkillButton(skill as SkillsKey, i))}
+                ]
+                    .map((s) => skillsKeySchema.parse(s))
+                    .map((skill, i) => createButton(skill, i))}
             </Grid>
         </Group>
     )
 
-    return (
-        <div style={{ width: smallScreen ? "100%" : "50%" }}>
-            {!pickedDistribution && (
-                <>
-                    <Text mt={"xl"} ta="center" fz="xl" fw={700} c="red">
-                        Select Distribution
-                    </Text>
-                    <hr color="#e03131" />
+    const height = globals.viewportHeightPx
+    const heightBreakPoint = 930
 
-                    <Space h="sm" />
-                    <Grid grow m={0}>
-                        {(Object.keys(distributionByType) as DistributionKey[]).map((distribution) => {
+    return (
+        <Box style={{ marginTop: height < heightBreakPoint ? "40px" : 0 }}>
+            {!pickedDistribution ? (
+                <Text fz={globals.largeFontSize} ta={"center"}>
+                    Pick your <Text component="span" fw={700}>Skill Distribution</Text>
+                </Text>
+            ) : (
+                <>
+                    <Text style={{ fontSize: globals.smallerFontSize, color: "grey" }} ta={"center"}>
+                        {pickedDistribution}
+                    </Text>
+                    {pickedDistribution === "Specialist" ? (
+                        <Text style={specialStyle} fz={"30px"} ta={"center"}>
+                            {toPick === "special" ? ">" : ""} Pick your <Text component="span" fw={700}>{distr.special - pickedSkills.special.length} specialty</Text> skill
+                        </Text>
+                    ) : null}
+                    <Text style={strongestStyle} ta={"center"}>
+                        {toPick === "strongest" ? ">" : ""} Pick your <Text component="span" fw={700}>{distr.strongest - pickedSkills.strongest.length} strongest</Text>{" "}
+                        skills
+                    </Text>
+                    <Text style={decentStyle} ta={"center"}>
+                        {toPick === "decent" ? ">" : ""} Pick <Text component="span" fw={700}>{distr.decent - pickedSkills.decent.length}</Text> skills you&apos;re{" "}
+                        <Text component="span" fw={700}>decent</Text> in
+                    </Text>
+                    <Text style={acceptableStyle} ta={"center"}>
+                        {toPick === "acceptable" ? ">" : ""} Pick <Text component="span" fw={700}>{distr.acceptable - pickedSkills.acceptable.length}</Text> skills
+                        you&apos;re <Text component="span" fw={700}>ok</Text> in
+                    </Text>
+                </>
+            )}
+
+            {pickedDistribution !== null ? null : (
+                <>
+                    <Space h="xl" />
+                    <Grid grow>
+                        {(["Jack of All Trades", "Balanced", "Specialist"] as DistributionKey[]).map((distribution) => {
                             return (
-                                <Grid.Col key={distribution} span={4}>
+                                <Grid.Col span={4} key={distribution}>
                                     <Tooltip
                                         disabled={pickedDistribution !== null}
                                         label={distributionDescriptions[distribution]}
@@ -258,38 +339,14 @@ const MageSkillsPicker = ({ character, setCharacter, nextStep }: MageSkillsPicke
                         })}
                     </Grid>
                     <Space h="xl" />
+                    <Space h="xl" />
                 </>
-            )}
-
-            {pickedDistribution && (
-                <div>
-                    <Text ta="center" fw={700} fz="lg" c="red" mb="md">
-                        {pickedDistribution} Distribution
-                    </Text>
-                    <Text ta="center" fz="sm" c="orange" mb="sm">
-                        🚀 = Special (4 dots) | 🥇 = Strongest (3 dots) | 🥈 = Decent (2 dots) | 🥉 = Acceptable (1 dot)
-                    </Text>
-                    <Group position="center" spacing="xs" mb="md">
-                        <Text style={specialStyle}>
-                            {toPick === "special" ? ">" : ""} Pick your <b>{distr.special - pickedSkills.special.length} specialty</b> skill
-                        </Text>
-                        <Text style={strongestStyle}>
-                            {toPick === "strongest" ? ">" : ""} Pick your <b>{distr.strongest - pickedSkills.strongest.length} strongest</b> skills
-                        </Text>
-                        <Text style={decentStyle}>
-                            {toPick === "decent" ? ">" : ""} Pick your <b>{distr.decent - pickedSkills.decent.length} decent</b> skills
-                        </Text>
-                        <Text style={acceptableStyle}>
-                            {toPick === "acceptable" ? ">" : ""} Pick your <b>{distr.acceptable - pickedSkills.acceptable.length} acceptable</b> skills
-                        </Text>
-                    </Group>
-                </div>
             )}
 
             <Text mt={"xl"} ta="center" fz="xl" fw={700} c="red">
                 Skills
             </Text>
-            <hr color="#e03131" />
+            <Box component="hr" style={{ borderColor: "#e03131" }} />
 
             <Space h="sm" />
 
@@ -304,7 +361,7 @@ const MageSkillsPicker = ({ character, setCharacter, nextStep }: MageSkillsPicke
                 pickedSkillNames={getAll(pickedSkills)}
                 skills={skills}
             />
-        </div>
+        </Box>
     )
 }
 
