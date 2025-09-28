@@ -49,10 +49,10 @@ const Intro = ({ setCharacter, nextStep }: IntroProps) => {
     return (
         <Alert mt={globals.isPhoneScreen ? "75px" : "50px"} color="grape" variant="outline" bg={"rgba(0, 0, 0, 0.6)"}>
             <Text fz={globals.largeFontSize} ta={"center"} mb={"lg"}>
-                This is a &apos;Werewolf: the Apocalypse&apos; 5th Edition character creation tool for beginners
+                This is a &apos;Mage: the Ascension&apos; character creation tool for beginners
             </Text>
             <Text fz={globals.smallerFontSize} mb={"xs"}>
-                It is intentionally streamlined and limited to creating a common type of Garou character following the rules from the source book.
+                It is intentionally streamlined and limited to creating mage characters with spheres, crafts, and perks following classic Mage rules.
             </Text>
             <Text fz={globals.smallerFontSize} mb={"xs"}>
                 You can download your character into a printable PDF when you&apos;re done and also save it to a local file that you can load into this web app to continue editing.
@@ -104,7 +104,7 @@ const Intro = ({ setCharacter, nextStep }: IntroProps) => {
 
                 <Button
                     component="a"
-                    href="https://github.com/Odin94/Progeny-vtm-v5-character-creator"
+                    href="https://github.com/SRparadox/MageCreator"
                     target="_blank"
                     rel="noreferrer"
                     leftIcon={<IconBrandGithub />}
