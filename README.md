@@ -1,6 +1,6 @@
 <h1 align="center">
   <div>� Awakening By Odin and ParadoxGirl ✨</div>
-  <div style="font-size: 20px;">A 'Mage: the Awakening' 2nd Edition Character Creator</div>
+  <div style="font-size: 20px;">A 'Mage: the Resurgence' 5th Edition Character Creator</div>
 </h1>
 
 
