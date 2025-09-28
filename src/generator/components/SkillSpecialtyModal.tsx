@@ -73,9 +73,6 @@ export const SpecialtyModal = ({
                 header: {
                     backgroundColor: 'var(--mantine-color-body)',
                 },
-                inner: {
-                    backgroundColor: 'transparent',
-                },
             }}
             title={
                 <div>
