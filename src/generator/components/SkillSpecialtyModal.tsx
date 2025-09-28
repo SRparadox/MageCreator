@@ -59,6 +59,15 @@ export const SpecialtyModal = ({
             size="lg"
             opened={modalOpened}
             onClose={closeModal}
+            overlayProps={{
+                backgroundOpacity: 0.55,
+                blur: 3,
+            }}
+            styles={{
+                content: {
+                    backgroundColor: 'var(--mantine-color-body)',
+                },
+            }}
             title={
                 <div>
                     <Text w={smallScreen ? "300px" : "600px"} fw={700} fz={"30px"} ta="center">
