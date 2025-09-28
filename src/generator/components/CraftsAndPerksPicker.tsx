@@ -1,6 +1,6 @@
 import { Box, Button, Card, Center, Grid, Group, Stack, Text, Title, Checkbox, Alert } from "@mantine/core"
-import { useState, useEffect } from "react"
-import { Character } from "../../data/Character"
+import React, { useState, useEffect } from "react"
+import { Character, CraftPerk } from "../../data/Character"
 import { crafts, perks, Craft, Perk } from "../../data/CraftsAndPerks"
 import { IconInfoCircle } from "@tabler/icons-react"
 
@@ -10,29 +10,22 @@ export type CraftsAndPerksPickerProps = {
     nextStep: () => void
 }
 
-type Selection = {
-    name: string
-    type: 'craft' | 'perk'
-    level: number
-    description: string
-}
-
 const CraftsAndPerksPicker = ({ character, setCharacter, nextStep }: CraftsAndPerksPickerProps) => {
-    const [selectedItems, setSelectedItems] = useState<Selection[]>(character.craftsAndPerks || [])
-    const [mode, setMode] = useState<'2crafts1perk' | '1craft2perks' | null>(null)
+    const [selectedItems, setSelectedItems] = useState(character.craftsAndPerks || [])
+    const [mode, setMode] = useState(null as '2crafts1perk' | '1craft2perks' | null)
     
     const maxCrafts = mode === '2crafts1perk' ? 2 : 1
     const maxPerks = mode === '2crafts1perk' ? 1 : 2
     
-    const selectedCrafts = selectedItems.filter(item => item.type === 'craft').length
-    const selectedPerks = selectedItems.filter(item => item.type === 'perk').length
+    const selectedCrafts = selectedItems.filter((item: CraftPerk) => item.type === 'craft').length
+    const selectedPerks = selectedItems.filter((item: CraftPerk) => item.type === 'perk').length
 
     useEffect(() => {
         setCharacter({
             ...character,
             craftsAndPerks: selectedItems,
         })
-    }, [selectedItems, character, setCharacter])
+    }, [selectedItems, setCharacter])
 
     const handleModeSelect = (selectedMode: '2crafts1perk' | '1craft2perks') => {
         setMode(selectedMode)
@@ -40,20 +33,20 @@ const CraftsAndPerksPicker = ({ character, setCharacter, nextStep }: CraftsAndPe
     }
 
     const handleItemToggle = (item: Craft | Perk, type: 'craft' | 'perk') => {
-        const selection: Selection = {
+        const selection: CraftPerk = {
             name: item.name,
             type,
             level: item.level,
             description: item.description
         }
 
-        const isSelected = selectedItems.some(selected => selected.name === item.name)
+        const isSelected = selectedItems.some((selected: CraftPerk) => selected.name === item.name)
         
         if (isSelected) {
-            setSelectedItems(selectedItems.filter(selected => selected.name !== item.name))
+            setSelectedItems(selectedItems.filter((selected: CraftPerk) => selected.name !== item.name))
         } else {
             // Check if we can add more of this type
-            const currentCount = selectedItems.filter(selected => selected.type === type).length
+            const currentCount = selectedItems.filter((selected: CraftPerk) => selected.type === type).length
             const maxCount = type === 'craft' ? maxCrafts : maxPerks
             
             if (currentCount < maxCount) {
@@ -69,13 +62,13 @@ const CraftsAndPerksPicker = ({ character, setCharacter, nextStep }: CraftsAndPe
     }
 
     const canSelectItem = (type: 'craft' | 'perk') => {
-        const currentCount = selectedItems.filter(selected => selected.type === type).length
+        const currentCount = selectedItems.filter((selected: CraftPerk) => selected.type === type).length
         const maxCount = type === 'craft' ? maxCrafts : maxPerks
         return currentCount < maxCount
     }
 
     const isItemSelected = (itemName: string) => {
-        return selectedItems.some(selected => selected.name === itemName)
+        return selectedItems.some((selected: CraftPerk) => selected.name === itemName)
     }
 
     if (!mode) {
@@ -94,7 +87,11 @@ const CraftsAndPerksPicker = ({ character, setCharacter, nextStep }: CraftsAndPe
                                 padding="xl"
                                 radius="md"
                                 withBorder
-                                style={{ cursor: "pointer", height: "100%" }}
+                                style={{ 
+                                    cursor: "pointer", 
+                                    height: "100%", 
+                                    backgroundColor: 'var(--mantine-color-body)' 
+                                }}
                                 onClick={() => handleModeSelect('2crafts1perk')}
                             >
                                 <Stack align="center" gap="md" h="100%">
@@ -111,7 +108,11 @@ const CraftsAndPerksPicker = ({ character, setCharacter, nextStep }: CraftsAndPe
                                 padding="xl"
                                 radius="md"
                                 withBorder
-                                style={{ cursor: "pointer", height: "100%" }}
+                                style={{ 
+                                    cursor: "pointer", 
+                                    height: "100%", 
+                                    backgroundColor: 'var(--mantine-color-body)' 
+                                }}
                                 onClick={() => handleModeSelect('1craft2perks')}
                             >
                                 <Stack align="center" gap="md" h="100%">
@@ -163,7 +164,8 @@ const CraftsAndPerksPicker = ({ character, setCharacter, nextStep }: CraftsAndPe
                                     style={{
                                         cursor: canSelectItem('craft') || isItemSelected(craft.name) ? "pointer" : "not-allowed",
                                         opacity: (!canSelectItem('craft') && !isItemSelected(craft.name)) ? 0.6 : 1,
-                                        border: isItemSelected(craft.name) ? "2px solid #228be6" : "1px solid #dee2e6"
+                                        border: isItemSelected(craft.name) ? "2px solid #228be6" : "1px solid #dee2e6",
+                                        backgroundColor: 'var(--mantine-color-body)',
                                     }}
                                     onClick={() => (canSelectItem('craft') || isItemSelected(craft.name)) && handleItemToggle(craft, 'craft')}
                                 >
@@ -202,7 +204,8 @@ const CraftsAndPerksPicker = ({ character, setCharacter, nextStep }: CraftsAndPe
                                     style={{
                                         cursor: canSelectItem('perk') || isItemSelected(perk.name) ? "pointer" : "not-allowed",
                                         opacity: (!canSelectItem('perk') && !isItemSelected(perk.name)) ? 0.6 : 1,
-                                        border: isItemSelected(perk.name) ? "2px solid #228be6" : "1px solid #dee2e6"
+                                        border: isItemSelected(perk.name) ? "2px solid #228be6" : "1px solid #dee2e6",
+                                        backgroundColor: 'var(--mantine-color-body)',
                                     }}
                                     onClick={() => (canSelectItem('perk') || isItemSelected(perk.name)) && handleItemToggle(perk, 'perk')}
                                 >
