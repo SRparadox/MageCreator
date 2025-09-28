@@ -1,5 +1,5 @@
-import { Box, Button, Card, Center, Group, Image, Stack, Text, Title, Alert, ActionIcon, Grid } from "@mantine/core"
-import { useState, useEffect } from "react"
+import { Box, Button, Card, Center, Group, Image, Stack, Text, Title, Alert, ActionIcon, Grid, useMantineTheme, ScrollArea } from "@mantine/core"
+import React, { useState, useEffect } from "react"
 import { Character } from "../../data/Character"
 import { spheres, Sphere, getEmptySpheres, Spheres, SphereName } from "../../data/Spheres"
 import { IconInfoCircle } from "@tabler/icons-react"
@@ -11,6 +11,7 @@ export type SpherePickerProps = {
 }
 
 const SpherePicker = ({ character, setCharacter, nextStep }: SpherePickerProps) => {
+    const theme = useMantineTheme()
     const [selectedSpheres, setSelectedSpheres] = useState(character.spheres || getEmptySpheres())
     const [affinity, setAffinity] = useState(character.affinitySphere || null)
     
@@ -76,7 +77,7 @@ const SpherePicker = ({ character, setCharacter, nextStep }: SpherePickerProps) 
 
     const DotSelector = ({ sphereName, currentValue }: { sphereName: SphereName, currentValue: number }) => {
         return (
-            <Group justify="center" gap={4}>
+            <Group justify="center" gap={6}>
                 {[1, 2, 3, 4, 5].map((dotValue) => {
                     const canSelect = dotValue <= currentValue || (dotValue === currentValue + 1 && remainingPoints > 0)
                     const isSelected = dotValue <= currentValue
@@ -94,19 +95,39 @@ const SpherePicker = ({ character, setCharacter, nextStep }: SpherePickerProps) 
                                 }
                             }}
                             style={{
-                                width: 20,
-                                height: 20,
+                                width: 24,
+                                height: 24,
                                 borderRadius: '50%',
-                                backgroundColor: isSelected ? 'var(--mantine-color-blue-6)' : 'transparent',
-                                border: '2px solid var(--mantine-color-gray-5)',
+                                backgroundColor: isSelected ? theme.colors.blue[6] : 'rgba(255,255,255,0.1)',
+                                border: `2px solid ${isSelected ? theme.colors.blue[4] : theme.colors.gray[5]}`,
                                 cursor: (canSelect || isSelected) ? 'pointer' : 'not-allowed',
-                                opacity: (!canSelect && !isSelected) ? 0.3 : 1,
+                                opacity: (!canSelect && !isSelected) ? 0.4 : 1,
+                                transition: 'all 0.2s ease',
+                                boxShadow: isSelected ? `0 0 8px ${theme.colors.blue[4]}` : 'none',
                             }}
                         />
                     )
                 })}
+                <Text size="sm" c="dimmed" ml={4}>
+                    {currentValue}/5
+                </Text>
             </Group>
         )
+    }
+
+    const getSphereGradientColor = (sphereName: string) => {
+        const colorMap: { [key: string]: string } = {
+            'correspondence': theme.colors.violet[7],
+            'entropy': theme.colors.gray[7], 
+            'forces': theme.colors.red[7],
+            'life': theme.colors.green[7],
+            'matter': theme.colors.orange[7],
+            'mind': theme.colors.blue[7],
+            'prime': theme.colors.yellow[7],
+            'spirit': theme.colors.teal[7],
+            'time': theme.colors.indigo[7],
+        }
+        return colorMap[sphereName] || theme.colors.gray[7]
     }
 
     const SphereCard = ({ sphereName }: { sphereName: string }) => {
@@ -116,62 +137,85 @@ const SpherePicker = ({ character, setCharacter, nextStep }: SpherePickerProps) 
         const currentValue = selectedSpheres[sphere.name as keyof Spheres]
         const isAffinitySelected = affinity === sphere.name
         const isAffinityDisabled = affinity !== null && affinity !== sphere.name
+        
+        const c1 = "rgba(26, 27, 30, 0.90)"
+        const c2 = getSphereGradientColor(sphere.name)
+        const bgColor = theme.fn.linearGradient(0, c1, theme.fn.rgba(c2, 0.9))
 
         return (
             <Card
-                shadow="md"
+                className="hoverCard"
+                shadow="sm"
                 padding="lg"
                 radius="md"
-                withBorder
-                h="100%"
-                style={{
-                    backgroundColor: 'var(--mantine-color-body)',
-                    opacity: 1,
+                h={320}
+                style={{ 
+                    background: bgColor, 
+                    cursor: "pointer",
+                    border: isAffinitySelected ? `3px solid ${theme.colors.blue[4]}` : 'none'
                 }}
             >
-                <Stack align="center" gap="md" h="100%">
-                    <Image
-                        src={getSphereImage(sphere.name)}
-                        alt={sphere.name}
-                        w={80}
-                        h={80}
-                        style={{ objectFit: "contain" }}
-                    />
-                    <Title order={4} ta="center" tt="capitalize">
+                <Card.Section>
+                    <Center pt={10}>
+                        <Image 
+                            fit="contain" 
+                            withPlaceholder 
+                            src={getSphereImage(sphere.name)} 
+                            height={100} 
+                            width={100} 
+                            alt={sphere.name}
+                        />
+                    </Center>
+                </Card.Section>
+
+                <Center>
+                    <Title order={4} p="md" tt="capitalize" c="white">
                         {sphere.name}
                     </Title>
-                    <Text size="xs" ta="center" c="dimmed" style={{ minHeight: '60px' }}>
-                        {sphere.description}
-                    </Text>
-                    
+                </Center>
+
+                <Text size="xs" ta="center" c="dimmed" style={{ minHeight: '60px' }}>
+                    {sphere.description}
+                </Text>
+                
+                <Center mt="sm">
                     <Button
                         variant={isAffinitySelected ? "filled" : "outline"}
                         color={isAffinitySelected ? "blue" : "gray"}
-                        size="sm"
-                        onClick={() => handleAffinityToggle(sphere.name as SphereName)}
+                        size="xs"
+                        onClick={(e: any) => {
+                            e.stopPropagation()
+                            handleAffinityToggle(sphere.name as SphereName)
+                        }}
                         disabled={isAffinityDisabled}
                         style={{
                             opacity: isAffinityDisabled ? 0.5 : 1
                         }}
                     >
-                        {isAffinitySelected ? "Affinity Selected" : "Set as Affinity"}
+                        {isAffinitySelected ? "★ Affinity" : "Set Affinity"}
                     </Button>
-                    
+                </Center>
+                
+                <Center mt="md">
                     <DotSelector sphereName={sphere.name as SphereName} currentValue={currentValue} />
-                </Stack>
+                </Center>
             </Card>
         )
     }
 
     return (
-        <Center>
-            <Stack align="center" gap="xl" w="100%" maw={1200}>
-                <Title order={1} ta="center">Choose Your Spheres</Title>
-                <Text size="lg" ta="center" c="dimmed" maw={800}>
-                    Choose one sphere as your affinity and distribute 7 dots among all spheres.
-                </Text>
-                
-                <Alert icon={<IconInfoCircle size={16} />} title="Sphere Distribution" color="blue">
+        <Box style={{ height: 'calc(100vh - 250px)' }}>
+            <Text fz={"30px"} ta={"center"}>
+                Choose Your <Text component="span" fw={700}>Spheres</Text>
+            </Text>
+
+            <Text ta="center" fz="xl" fw={700} c="grape">
+                Spheres
+            </Text>
+            <Box component="hr" style={{ color: "#be4bdb" }} />
+            
+            <Center mb="md">
+                <Alert icon={<IconInfoCircle size={16} />} title="Sphere Distribution" color="blue" maw={400}>
                     <Text size="sm">
                         Points remaining: {remainingPoints} / {maxPoints}
                         {affinity && (
@@ -181,20 +225,44 @@ const SpherePicker = ({ character, setCharacter, nextStep }: SpherePickerProps) 
                         )}
                     </Text>
                 </Alert>
-                
-                <Grid w="100%" gutter="lg">
-                    {sphereColumns.map((column, columnIndex) => (
-                        <Grid.Col key={columnIndex} span={4}>
-                            <Stack gap="md">
-                                {column.map((sphereName) => (
-                                    <SphereCard sphereName={sphereName} />
-                                ))}
-                            </Stack>
+            </Center>
+
+            <ScrollArea h={'calc(100vh - 400px)'} w={"100%"} p={20}>
+                <Text ta="center" fz="xl" fw={700} mb="sm" mt="md" c={theme.colors.violet[6]}>
+                    Mind & Matter
+                </Text>
+                <Grid grow m={0} gutter="md">
+                    {['correspondence', 'entropy', 'forces'].map((sphereName) => (
+                        <Grid.Col key={sphereName} span={4}>
+                            <SphereCard sphereName={sphereName} />
                         </Grid.Col>
                     ))}
                 </Grid>
 
-                <Group justify="center" mt="xl">
+                <Text ta="center" fz="xl" fw={700} mb="sm" mt="md" c={theme.colors.green[6]}>
+                    Life & Reality  
+                </Text>
+                <Grid grow m={0} gutter="md">
+                    {['life', 'matter', 'mind'].map((sphereName) => (
+                        <Grid.Col key={sphereName} span={4}>
+                            <SphereCard sphereName={sphereName} />
+                        </Grid.Col>
+                    ))}
+                </Grid>
+
+                <Text ta="center" fz="xl" fw={700} mb="sm" mt="md" c={theme.colors.yellow[6]}>
+                    Prime Forces
+                </Text>
+                <Grid grow m={0} gutter="md">
+                    {['prime', 'spirit', 'time'].map((sphereName) => (
+                        <Grid.Col key={sphereName} span={4}>
+                            <SphereCard sphereName={sphereName} />
+                        </Grid.Col>
+                    ))}
+                </Grid>
+            </ScrollArea>
+
+                <Center mt="xl">
                     <Button
                         size="lg"
                         onClick={handleNext}
@@ -202,9 +270,8 @@ const SpherePicker = ({ character, setCharacter, nextStep }: SpherePickerProps) 
                     >
                         Continue ({totalPoints}/7 points used)
                     </Button>
-                </Group>
-            </Stack>
-        </Center>
+                </Center>
+        </Box>
     )
 }
 
