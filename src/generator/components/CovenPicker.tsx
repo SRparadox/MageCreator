@@ -4,12 +4,6 @@ import { Character } from "../../data/Character"
 import { covens, Coven } from "../../data/Covens"
 import { covenNameSchema } from "../../data/NameSchemas"
 
-// Import images
-import independentImg from "../../resources/magestatus/Independent.webp"
-import marauderImg from "../../resources/magestatus/marauder.webp"
-import technocracyImg from "../../resources/magestatus/technocracy.webp"
-import traditionsImg from "../../resources/magestatus/traditions.webp"
-
 export type CovenPickerProps = {
     character: Character
     setCharacter: (character: Character) => void
@@ -19,17 +13,19 @@ export type CovenPickerProps = {
 const CovenPicker = ({ character, setCharacter, nextStep }: CovenPickerProps) => {
     const [selectedCoven, setSelectedCoven] = useState(character.coven || "")
     
+    // Image mapping using public directory paths
+    const covenImages: Record<string, string> = {
+        independent: "/images/factions/Independent.webp",
+        marauder: "/images/factions/marauder.webp", 
+        technocracy: "/images/factions/technocracy.webp",
+        traditions: "/images/factions/traditions.webp"
+    }
+
     // Debug: log covens to console
     console.log("Covens array:", covens)
     console.log("Covens length:", covens.length)
-
-    // Image mapping using imported images
-    const covenImages: Record<string, string> = {
-        independent: independentImg,
-        marauder: marauderImg, 
-        technocracy: technocracyImg,
-        traditions: traditionsImg
-    }
+    console.log("Selected coven:", selectedCoven)
+    console.log("Coven images:", covenImages)
 
     const handleCovenSelect = (covenName: string) => {
         setSelectedCoven(covenName)
@@ -47,7 +43,7 @@ const CovenPicker = ({ character, setCharacter, nextStep }: CovenPickerProps) =>
     }
 
     const getCovenImage = (covenName: string) => {
-        return covenImages[covenName] || independentImg
+        return covenImages[covenName] || "/images/factions/Independent.webp"
     }
 
     return (
@@ -80,6 +76,7 @@ const CovenPicker = ({ character, setCharacter, nextStep }: CovenPickerProps) =>
                                         w={80}
                                         h={80}
                                         style={{ objectFit: "contain" }}
+                                        fallbackSrc="data:image/svg+xml,%3csvg%20width='100'%20height='100'%20xmlns='http://www.w3.org/2000/svg'%3e%3crect%20width='100'%20height='100'%20fill='%23ddd'/%3e%3ctext%20x='50'%20y='50'%20font-size='14'%20text-anchor='middle'%20dy='.3em'%3eImage%3c/text%3e%3c/svg%3e"
                                     />
                                     <Title order={3} ta="center" tt="capitalize">
                                         {coven.name}
