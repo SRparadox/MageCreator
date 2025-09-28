@@ -54,6 +54,9 @@ export const notDefault = (character: Character, attribute: keyof Character) => 
     if (attribute === "attributes") return isNonDefaultAttributes(character[attribute])
     if (attribute === "skills") return isNonDefaultSkills(character[attribute])
     if (attribute === "predatorType") return isNonDefaultPredatorType(character[attribute])
+    if (attribute === "coven") return character[attribute] !== "" && character[attribute] !== undefined
+    if (attribute === "spheres") return character[attribute] !== undefined && Object.values(character[attribute] || {}).some((value: any) => value > 0)
+    if (attribute === "craftsAndPerks") return character[attribute] !== undefined && character[attribute]?.length > 0
     return character[attribute] !== emptyCharacter[attribute]
 }
 export const isDefault = (character: Character, attribute: keyof Character) => !notDefault(character, attribute)

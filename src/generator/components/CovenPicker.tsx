@@ -12,6 +12,18 @@ export type CovenPickerProps = {
 
 const CovenPicker = ({ character, setCharacter, nextStep }: CovenPickerProps) => {
     const [selectedCoven, setSelectedCoven] = useState<string>(character.coven || "")
+    
+    // Debug: log covens to console
+    console.log("Covens array:", covens)
+    console.log("Covens length:", covens.length)
+
+    // Image mapping with correct case - using relative paths from public directory
+    const covenImages: Record<string, string> = {
+        independent: "src/resources/magestatus/Independent.webp",
+        marauder: "src/resources/magestatus/marauder.webp", 
+        technocracy: "src/resources/magestatus/technocracy.webp",
+        traditions: "src/resources/magestatus/traditions.webp"
+    }
 
     const handleCovenSelect = (covenName: string) => {
         setSelectedCoven(covenName)
@@ -29,8 +41,7 @@ const CovenPicker = ({ character, setCharacter, nextStep }: CovenPickerProps) =>
     }
 
     const getCovenImage = (covenName: string) => {
-        const imagePath = `/src/resources/magestatus/${covenName}.webp`
-        return imagePath
+        return covenImages[covenName] || "src/resources/magestatus/Independent.webp"
     }
 
     return (

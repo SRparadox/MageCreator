@@ -12,15 +12,13 @@ export type AsideBarProps = {
 const AsideBar = ({ selectedStep, setSelectedStep, character }: AsideBarProps) => {
     // const smallScreen = globals.isSmallScreen
     const stepperKeys = [
-        "clan", // Maps to tribe
+        "coven", // Mage faction selection
         "attributes",
         "skills", 
-        "auspice", // Werewolf auspice selection
-        "name",
-        "disciplines", // Maps to gifts
-        "rites", // Werewolf rites
-        "touchstones",
+        "name", // Name, concept, ambition, desire, chronicle
+        "spheres", // Mage sphere selection
         "merits",
+        "craftsAndPerks", // Mage crafts and perks
     ] as (keyof Character)[]
 
     const isHigherLevelAccessible = (character: Character, key: keyof Character) => {
@@ -47,10 +45,10 @@ const AsideBar = ({ selectedStep, setSelectedStep, character }: AsideBarProps) =
                     {" "}
                 </Stepper.Step>
                 {stepperKeys.map((title) => {
-                    let displayTitle = title === "clan" ? "Tribe" : upcase(title as string)
-                    if (title === "auspice") displayTitle = "Auspice"
-                    if (title === "disciplines") displayTitle = "Gifts"
-                    if (title === "rites") displayTitle = "Rites"
+                    let displayTitle = upcase(title as string)
+                    if (title === "coven") displayTitle = "Faction"
+                    if (title === "spheres") displayTitle = "Spheres"
+                    if (title === "craftsAndPerks") displayTitle = "Crafts & Perks"
                     
                     return (
                         <Stepper.Step
@@ -63,7 +61,7 @@ const AsideBar = ({ selectedStep, setSelectedStep, character }: AsideBarProps) =
                         </Stepper.Step>
                     )
                 })}
-                <Stepper.Step key={"Final"} label={"Final"} description="" disabled={isDefault(character, "disciplines") || isDefault(character, "rites")}>
+                <Stepper.Step key={"Final"} label={"Final"} description="" disabled={isDefault(character, "spheres") || isDefault(character, "craftsAndPerks")}>
                     {" "}
                 </Stepper.Step>
             </Stepper>
