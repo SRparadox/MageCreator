@@ -5,13 +5,13 @@ import * as path from "path"
 
 export default defineConfig({
     build: {
-        outDir: "build",
+        outDir: "dist",
     },
     server: {
         port: 3000,
     },
     plugins: [react()],
-    base: "/Werewolf-Character-Creator/",
+    base: "/MageCreator/",
     resolve: {
         alias: {
             "~": path.resolve(__dirname, "src"),
