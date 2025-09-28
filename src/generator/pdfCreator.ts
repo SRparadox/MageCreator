@@ -1,14 +1,11 @@
 import { notifications } from "@mantine/notifications"
 import fontkit from "@pdf-lib/fontkit"
 import { PDFBool, PDFDocument, PDFFont, PDFForm, PDFName } from "pdf-lib"
-import { Character, CraftPerk } from "../data/Character"
+import { Character } from "../data/Character"
 import { SkillsKey, skillsKeySchema } from "../data/Skills"
 import { attributesKeySchema } from "../data/Attributes"
-import { Power, Ritual } from "../data/Disciplines"
-import { Gift } from "../data/Gifts"
 import base64Pdf_mage from "../resources/magesheet.base64?raw"
 import { upcase } from "./utils"
-import { DisciplineName } from "~/data/NameSchemas"
 
 let customFont: PDFFont
 
@@ -34,13 +31,15 @@ export const testTemplate = async (basePdf: string) => {
     }
     try {
         form.getTextField("Name").setText("")
-        // Try mage fields first
+        // Try mage fields
         try {
             form.getTextField("Player").setText("")
-            form.getTextField("Coven").setText("")
+            form.getTextField("Conven").setText("")
             form.getTextField("Chronicle").setText("")
+            form.getTextField("Concept").setText("")
+            form.getTextField("Affinity").setText("")
         } catch (e) {
-            // Mage fields don't exist in this PDF
+            // Some mage fields don't exist in this PDF
         }
     } catch (err) {
         return {
@@ -81,9 +80,9 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
     // Skills
     const setSpecialty = (skillName: SkillsKey, textFieldKey: string) => {
         const specialties = (character.skillSpecialties || [])
-            .filter((s) => s.skill === skillName)
-            .filter((s) => s.name !== "")
-            .map((s) => s.name)
+            .filter((s: any) => s.skill === skillName)
+            .filter((s: any) => s.name !== "")
+            .map((s: any) => s.name)
 
         if (specialties.length > 0) form.getTextField(textFieldKey).setText(specialties.join(", "))
     }
@@ -178,11 +177,9 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
             const sphereLevel = character.spheres![sphereName]
             for (let i = 1; i <= sphereLevel; i++) {
                 try {
-                    // Try different possible field name patterns for spheres
+                    // Use exact field pattern: Life-1, Forces-2, etc.
                     const capitalizedSphere = sphereName.charAt(0).toUpperCase() + sphereName.slice(1)
-                    form.getCheckBox(`${capitalizedSphere}-${i}`)?.check() ||
-                    form.getCheckBox(`Sphere_${capitalizedSphere}-${i}`)?.check() ||
-                    form.getCheckBox(`${sphereName}-${i}`)?.check()
+                    form.getCheckBox(`${capitalizedSphere}-${i}`)?.check()
                 } catch (e) {
                     // If sphere fields don't exist in PDF, skip
                 }
@@ -190,150 +187,50 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
         })
     }
 
-    // Top fields - Mage character info
-    // Name
-    form.getTextField("Name").setText(character.name)
-    
-    // Player Name
+    // Arete (starts at 1 dot)
     try {
-        form.getTextField("Player")?.setText(character.playerName || "")
+        form.getCheckBox("Arete-1")?.check()
     } catch (e) {
-        // Fallback if Player field doesn't exist
-        try {
-            form.getTextField("PlayerName")?.setText(character.playerName || "")
-        } catch (e2) {
-            form.getTextField("pcDescription")?.setText(character.playerName || "")
-        }
-    }
-    
-    // Coven
-    const covenName = character.coven
-    try {
-        form.getTextField("Coven")?.setText(covenName || "")
-    } catch (e) {
-        // Try alternative field names
-        try {
-            form.getTextField("Faction")?.setText(covenName || "")
-        } catch (e2) {
-            form.getTextField("Organization")?.setText(covenName || "")
-        }
-    }
-    
-    // Chronicle
-    try {
-        form.getTextField("Chronicle")?.setText(character.chronicle || "")
-    } catch (e) {
-        // Chronicle field doesn't exist in this PDF
-    }
-    
-    // Concept (mage-specific field)
-    try {
-        form.getTextField("Concept")?.setText(character.concept || "")
-    } catch (e) {
-        // Concept field doesn't exist in this PDF
+        // If Arete field doesn't exist, skip
     }
 
+    // Top fields - Mage character info using exact field names
+    form.getTextField("Name").setText(character.name)
+    form.getTextField("Concept").setText(character.concept || "")
+    form.getTextField("Chronicle").setText(character.chronicle || "")
+    form.getTextField("Ambition").setText(character.ambition || "")
+    form.getTextField("Desire").setText(character.desire || "")
+    form.getTextField("Player").setText(character.playerName || "")
+    
+    // Status field - using pack for now, could be customized
+    form.getTextField("Status").setText(character.pack || "")
+    
     // Affinity Sphere
-    try {
-        form.getTextField("AffinitySphere")?.setText(character.affinitySphere || "")
-    } catch (e) {
-        try {
-            form.getTextField("Affinity")?.setText(character.affinitySphere || "")
-        } catch (e2) {
-            // Affinity sphere field doesn't exist in this PDF
-        }
-    }
+    form.getTextField("Affinity").setText(character.affinitySphere || "")
+    
+    // Coven (note: field is "Conven" not "Coven")
+    form.getTextField("Conven").setText(character.coven || "")
 
     // Gifts and Rites - using new field naming pattern
-    const getGiftText = (power: Power | Ritual | Gift) => {
-        let text = power.name + ": " + power.summary
-        
-        // Handle different power types
-        if ('cost' in power) {
-            // It's a Gift
-            text += ` // ${power.cost}`
-        } else if ('rouseChecks' in power && power.rouseChecks > 0) {
-            // It's a Discipline Power
-            text += ` // ${power.rouseChecks} rouse check${power.rouseChecks > 1 ? "s" : ""}`
-        }
 
-        if ('requiredTime' in power && 'ingredients' in power) {
-            // It's a ritual
-            text += ` // requires: ${power.ingredients}; ${power.requiredTime}`
-        }
 
-        return text
+    // Mage spells/powers (if any) - can be handled in future versions
+    // For now, mage character sheets focus on spheres rather than specific powers
+
+    // Initialize additional details text for fallback notes
+    let additionalDetailsText = ""
+    
+    // Add coven information if available
+    if (character.coven) {
+        additionalDetailsText += `Coven: ${character.coven}\n\n`
     }
 
-    const getDicePoolText = (power: Power | Ritual | Gift) => {
-        return power.dicePool || ""
-    }
-
-    // Combine gifts and rites into a single array for unified numbering
-    const allGiftsAndRites = [
-        ...(character.disciplines || []),
-        ...(character.rituals || []),
-        ...(character.gifts || []),
-        ...(character.rites || [])
-    ]
-
-    // Fill gift/rite names and dice pools using the specified field pattern
-    allGiftsAndRites.forEach((power, index) => {
-        try {
-            // Gift name goes into 0.X.Gift_Name-1 pattern
-            const giftNameField = `0.${index}.Gift_Name-1`
-            form.getTextField(giftNameField)?.setText(getGiftText(power))
-            form.getTextField(giftNameField)?.disableRichFormatting()
-            
-            // Dice pool goes into 1.X.Gift_Name-1 pattern  
-            const dicePoolField = `1.${index}.Gift_Name-1`
-            const dicePoolText = getDicePoolText(power)
-            if (dicePoolText) {
-                form.getTextField(dicePoolField)?.setText(dicePoolText)
-                form.getTextField(dicePoolField)?.disableRichFormatting()
-            }
-        } catch (e) {
-            // If the specific field doesn't exist, continue with next
-        }
-    })
-
-    // Fallback for older discipline-based system (keep for compatibility)
-    const powersByDiscipline = (character.disciplines || []).reduce(
-        (acc, p) => {
-            if (!acc[p.discipline]) acc[p.discipline] = []
-            acc[p.discipline].push(p)
-            return acc
-        },
-        {} as Record<DisciplineName, Power[]>
-    )
-    for (const [disciplineIndex, powers] of Object.values(powersByDiscipline).entries()) {
-        const di = disciplineIndex + 1
-        try {
-            form.getTextField(`Disc${di}`)?.setText(upcase(powers[0].discipline))
-            for (const [powerIndex, power] of powers.entries()) {
-                const pi = powerIndex + 1
-                form.getTextField(`Disc${di}_Ability${pi}`)?.setText(getGiftText(power))
-                form.getTextField(`Disc${di}_Ability${pi}`)?.disableRichFormatting()
-                form.getCheckBox(`Disc${di}-${pi}`)?.check()
-            }
-            if (powers[0].discipline === "blood sorcery") {
-                for (const [ritualIndex, ritual] of (character.rituals || []).entries()) {
-                    const ri = powers.length + ritualIndex + 1
-                    form.getTextField(`Disc${di}_Ability${ri}`)?.setText(getGiftText(ritual))
-                    form.getTextField(`Disc${di}_Ability${ri}`)?.disableRichFormatting()
-                }
-            }
-        } catch (e) {
-            // If discipline fields don't exist, skip
-        }
-    }
-
-    // Merits & flaws - simplified for Werewolf
+    // Merits & Flaws (Merit1 to Merit8)
     const meritsAndFlaws = [...character.merits, ...character.flaws]
-    meritsAndFlaws.forEach(({ name, level, summary }, i) => {
+    meritsAndFlaws.slice(0, 8).forEach((item: any, i: number) => {
         const fieldNum = i + 1
-        form.getTextField(`Merit${fieldNum}`).setText(name + ": " + summary)
-        for (let l = 1; l <= level; l++) {
+        form.getTextField(`Merit${fieldNum}`).setText(item.name + ": " + item.summary)
+        for (let l = 1; l <= item.level; l++) {
             try {
                 form.getCheckBox(`Merit${fieldNum}-${l}`).check()
             } catch (e) {
@@ -342,52 +239,52 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
         }
     })
 
-    // Crafts & Perks - Add to merits section or dedicated fields
+    // Crafts and Perks handling
     const craftsAndPerks = character.craftsAndPerks || []
-    const meritsStartIndex = meritsAndFlaws.length
     
-    craftsAndPerks.forEach(({ name, level, description, type }, i) => {
-        const fieldNum = meritsStartIndex + i + 1
-        const displayText = `${name} (${type === 'craft' ? 'Craft' : 'Perk'}): ${description}`
-        
-        try {
-            // Try to add to merit fields first
-            form.getTextField(`Merit${fieldNum}`).setText(displayText)
-            
-            // Fill in the level dots
-            for (let l = 1; l <= level; l++) {
-                try {
-                    form.getCheckBox(`Merit${fieldNum}-${l}`).check()
-                } catch (e) {
-                    // If checkbox doesn't exist, skip
-                }
-            }
-        } catch (e) {
-            // If merit fields are full, try alternative approaches
+    // Separate crafts and perks
+    const perks = craftsAndPerks.filter((item: any) => item.type === 'perk')
+    const crafts = craftsAndPerks.filter((item: any) => item.type === 'craft')
+    
+    // Perks go under Perk1 to Perk9
+    perks.slice(0, 9).forEach((perk: any, i: number) => {
+        const fieldNum = i + 1
+        form.getTextField(`Perk${fieldNum}`).setText(perk.name + ": " + perk.description)
+        for (let l = 1; l <= perk.level; l++) {
             try {
-                // Try dedicated craft/perk fields if they exist
-                const craftPerkFieldName = type === 'craft' ? `Craft${i + 1}` : `Perk${i + 1}`
-                form.getTextField(craftPerkFieldName)?.setText(displayText)
-            } catch (e2) {
-                // If no dedicated fields exist, we'll add to notes section later
+                form.getCheckBox(`Perk${fieldNum}-${l}`).check()
+            } catch (e) {
+                // If checkbox doesn't exist, skip
+            }
+        }
+    })
+    
+    // Crafts go under Merit9 to Merit16
+    crafts.slice(0, 8).forEach((craft: any, i: number) => {
+        const fieldNum = i + 9 // Merit9 to Merit16
+        form.getTextField(`Merit${fieldNum}`).setText(craft.name + ": " + craft.description)
+        for (let l = 1; l <= craft.level; l++) {
+            try {
+                form.getCheckBox(`Merit${fieldNum}-${l}`).check()
+            } catch (e) {
+                // If checkbox doesn't exist, skip
             }
         }
     })
 
-    // Touchstones & Convictions - Enhanced with all details
-    const touchstonesText = (character.touchstones || []).map(({ name, description, conviction }) => 
-        `${name}: ${conviction}\n${description}`
+    // Touchstones & Convictions
+    const touchstonesText = (character.touchstones || []).map((item: any) => 
+        `${item.name}: ${item.conviction}\n${item.description}`
     ).join("\n\n")
     
-    form.getTextField("Convictions").setText(touchstonesText)
-
-    // Additional character details for notes field
-    let additionalDetailsText = ""
-    
-    // Add coven information if available
-    if (covenName) {
-        additionalDetailsText += `Coven: ${covenName}\n\n`
+    try {
+        form.getTextField("Convictions").setText(touchstonesText)
+    } catch (e) {
+        // If Convictions field doesn't exist, add to notes
+        additionalDetailsText += `Convictions:\n${touchstonesText}\n\n`
     }
+
+    // Additional character details for notes field (already declared above)
     
     // Add Crafts and Perks to notes as fallback/additional info
     if (craftsAndPerks.length > 0) {
@@ -415,65 +312,22 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
     
     // Map specific fields according to PDF structure
     
-    // Map specific fields according to PDF structure
+    // Character details using exact field names
+    // pcDescription is appearance
+    form.getTextField("pcDescription").setText(character.appearance || "")
     
-    // Appearance
-    try {
-        form.getTextField("Appearance")?.setText(character.appearance || "")
-    } catch (e) {
-        try {
-            form.getTextField("pcDescription")?.setText(character.appearance || "")
-        } catch (e2) {
-            // Fallback if appearance field doesn't exist
-            if (character.appearance) {
-                additionalDetailsText += `Appearance:\n${character.appearance}\n\n`
-            }
-        }
-    }
+    // History is history  
+    form.getTextField("History").setText(character.history || "")
     
-    // History
-    try {
-        form.getTextField("History")?.setText(character.history || "")
-    } catch (e) {
-        try {
-            form.getTextField("pcConcept")?.setText(character.history || "")
-        } catch (e2) {
-            // Fallback if History field doesn't exist
-            if (character.history) {
-                additionalDetailsText += `History:\n${character.history}\n\n`
-            }
-        }
-    }
+    // PC_Notes is notes
+    form.getTextField("PC_Notes").setText(character.notes || "")
     
-    // Notes
-    try {
-        form.getTextField("Notes")?.setText(character.notes || "")
-    } catch (e) {
-        try {
-            form.getTextField("PC_Notes")?.setText(character.notes || "")
-        } catch (e2) {
-            // Fallback if Notes field doesn't exist
-            if (character.notes) {
-                additionalDetailsText += `Character Notes:\n${character.notes}\n\n`
-            }
-        }
-    }
-    
-    // Set additional details in appropriate notes field
-    try {
-        form.getTextField("AdditionalNotes")?.setText(additionalDetailsText.trim())
-    } catch (e) {
-        try {
-            form.getTextField("touchstoneNotes")?.setText(additionalDetailsText.trim())
-        } catch (e2) {
-            try {
-                form.getTextField("Notes")?.setText(additionalDetailsText.trim())
-            } catch (e3) {
-                // If no notes field exists, append to convictions
-                const combinedText = touchstonesText + (additionalDetailsText ? `\n\n--- Additional Info ---\n${additionalDetailsText.trim()}` : "")
-                form.getTextField("Convictions").setText(combinedText)
-            }
-        }
+    // If there are additional details that couldn't be placed in specific fields,
+    // they can be added to PC_Notes as supplementary information
+    if (additionalDetailsText.trim()) {
+        const currentNotes = character.notes || ""
+        const combinedNotes = currentNotes + (currentNotes ? "\n\n" : "") + "=== ADDITIONAL INFO ===\n" + additionalDetailsText.trim()
+        form.getTextField("PC_Notes").setText(combinedNotes)
     }
 
     // Experience - use character experience value directly
