@@ -4,6 +4,12 @@ import { Character } from "../../data/Character"
 import { covens, Coven } from "../../data/Covens"
 import { covenNameSchema } from "../../data/NameSchemas"
 
+// Import images
+import independentImg from "../../resources/magestatus/Independent.webp"
+import marauderImg from "../../resources/magestatus/marauder.webp"
+import technocracyImg from "../../resources/magestatus/technocracy.webp"
+import traditionsImg from "../../resources/magestatus/traditions.webp"
+
 export type CovenPickerProps = {
     character: Character
     setCharacter: (character: Character) => void
@@ -11,18 +17,18 @@ export type CovenPickerProps = {
 }
 
 const CovenPicker = ({ character, setCharacter, nextStep }: CovenPickerProps) => {
-    const [selectedCoven, setSelectedCoven] = useState<string>(character.coven || "")
+    const [selectedCoven, setSelectedCoven] = useState(character.coven || "")
     
     // Debug: log covens to console
     console.log("Covens array:", covens)
     console.log("Covens length:", covens.length)
 
-    // Image mapping with correct case - using relative paths from public directory
+    // Image mapping using imported images
     const covenImages: Record<string, string> = {
-        independent: "src/resources/magestatus/Independent.webp",
-        marauder: "src/resources/magestatus/marauder.webp", 
-        technocracy: "src/resources/magestatus/technocracy.webp",
-        traditions: "src/resources/magestatus/traditions.webp"
+        independent: independentImg,
+        marauder: marauderImg, 
+        technocracy: technocracyImg,
+        traditions: traditionsImg
     }
 
     const handleCovenSelect = (covenName: string) => {
@@ -41,7 +47,7 @@ const CovenPicker = ({ character, setCharacter, nextStep }: CovenPickerProps) =>
     }
 
     const getCovenImage = (covenName: string) => {
-        return covenImages[covenName] || "src/resources/magestatus/Independent.webp"
+        return covenImages[covenName] || independentImg
     }
 
     return (
