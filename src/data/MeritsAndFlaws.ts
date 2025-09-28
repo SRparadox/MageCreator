@@ -11,18 +11,6 @@ export type BackgroundsData = {
     backgrounds: MeritOrFlaw[]
 }
 
-// Caern Merits & Flaws
-export const caernMeritsAndFlaws: MeritsAndFlaws = {
-    title: "�️ Caern",
-    merits: [
-        { name: "Caern Access", cost: [1], summary: "The character can access a Caern belonging to another sept, as long as they do not interfere with them or put the caern in danger." },
-        { name: "Awakened Caern", cost: [5], summary: "Add one to the caern value of the first caern the character joins or finds. This Merit does not stack, it is up to the Storyteller if other members can chip in to accumulate the five dots of this Merit." }
-    ],
-    flaws: [
-        { name: "Caern Pariah", cost: [1], summary: "The character is unwelcome in any and all caerns on their turf. Either needing to pay to use them through dangerous jobs or acts or resorting to sneaking in, which can be disaster if they are caught. This does not apply to a caern whose sept you belong to, though it can be a reason for someone else to want you gone." }
-    ]
-}
-
 // Day Job Merits
 export const dayJobMerits: MeritsAndFlaws = {
     title: "💼 Day Job",
@@ -37,10 +25,10 @@ export const dayJobMerits: MeritsAndFlaws = {
 export const linguisticsMeritsAndFlaws: MeritsAndFlaws = {
     title: "🗣️ Linguistics",
     merits: [
-        { name: "Linguistics", cost: [1, 2, 3, 4, 5], summary: "Each dot of Linguistics allows the character to read, write and speak fluently in another language outside of the default two they already know, which is their birth language and the language of the setting." }
+        { name: "Linguistics", cost: [1, 2, 3, 4, 5], summary: "This determines languages you would know not limited to native birth languages. Every dot in this merit represents a language your character is fluent in. Dead languages may be included as options under this merit and can be added to checks on Academics or Occult tests." }
     ],
     flaws: [
-        { name: "Illiterate", cost: [2], summary: "The Character cannot read nor write and their Science and Academics Skills may not go beyond 1 dot. They cannot have a speciality in them that uses modern knowledge." }
+        { name: "Illiterate", cost: [2], summary: "You cannot read or write. Academics and Science Skills are capped at 1 and you can have no specialty in them incorporating modern knowledge." }
     ]
 }
 
@@ -48,24 +36,56 @@ export const linguisticsMeritsAndFlaws: MeritsAndFlaws = {
 export const looksMeritsAndFlaws: MeritsAndFlaws = {
     title: "👤 Looks",
     merits: [
-        { name: "Clement Lupus", cost: [1], summary: "The lupus form appears more dog-like than wolf-like and no human onlookers assume they are a wolf." },
-        { name: "Beautiful", cost: [2], summary: "Add one die to related Social pools" },
-        { name: "Stunning", cost: [4], summary: "Add two dice to related Social pools" }
+        { name: "Beautiful", cost: [2], summary: "You add one extra die to all appropriate Social Dice Pools. These modifiers can only apply when you are seen." },
+        { name: "Stunning", cost: [4], summary: "You add two extra dice to all appropriate social dice pools. These modifiers can only apply when you are seen." }
     ],
     flaws: [
-        { name: "Ugly", cost: [1], summary: "Lose one die from related Social pools" },
-        { name: "Repulsive", cost: [2], summary: "Lose two dice from related Social pools" },
-        { name: "Stench", cost: [1], summary: "Lose one die from seduction and similar Social pools. Lose two dice from Stealth pools against opponents who can smell unless you're upwind" },
-        { name: "Transparent", cost: [1], summary: "Lose one die from any pools requiring Subterfuge. You cannot gain dots in Subterfuge." }
+        { name: "Ugly", cost: [1], summary: "You lose one die from all relevant social dice pools. These modifiers can only apply when you are seen." },
+        { name: "Repulsive", cost: [2], summary: "You lose two dice from all relevant social dice pools. These modifiers can only apply when you are seen." }
     ]
 }
 
-// Mythic Flaws
-export const mythicFlaws: MeritsAndFlaws = {
-    title: "🌟 Mythic",
+// Hedge Magic Merits & Flaws
+export const hedgeMagicMeritsAndFlaws: MeritsAndFlaws = {
+    title: "🔮 Hedge Magic",
+    merits: [
+        { name: "Hedge Mage", cost: [2], summary: "You are used to achieving your power on your own with your ingenuity and perseverance. You need one less result for a success in creating Casting Circles and add one more die to your pool when participating in Group Casting." }
+    ],
+    flaws: [
+        { name: "Dark Deals", cost: [2], summary: "Your magik is granted to you by an outside force. A Changeling, Kindred or even maybe one of the Fallen opened your avatar to the storm. When you participate in Group casting, you suffer a 2 die penalty as the source of your magik clashes with the natural ebb and flow of the ones around you." }
+    ]
+}
+
+// Psychological Traits Merits & Flaws
+export const psychologicalTraitsMeritsAndFlaws: MeritsAndFlaws = {
+    title: "🧠 Psychological Traits",
+    merits: [
+        { name: "Strong-Willed", cost: [2], summary: "Something within you drives you and propels you through life. You know yourself enough to push through mundane and supernatural manipulations. When subjected to such, and are aware, you may add two dice to resist this influence." }
+    ],
+    flaws: [
+        { name: "Living on the Edge", cost: [2], summary: "You're one of those people who feel compelled to take every chance to experience life at its fullest. When you are confronted with a chance to indulge a risky temptation you haven't done before, you suffer a two-dice penalty to all actions until you either partake of the new experience or the scene ends." },
+        { name: "Weak-Willed", cost: [2], summary: "You struggle to assert your own personality when confronted with the will of another. Even when you're aware of supernatural attempts to sway you mentally or emotionally, you may not use active resistance systems to avoid those effects." }
+    ]
+}
+
+// Substance Abuse Flaws
+export const substanceAbuseMeritsAndFlaws: MeritsAndFlaws = {
+    title: "💊 Substance Abuse",
     merits: [],
     flaws: [
-        { name: "Additional Ban", cost: [2], summary: "Choose another tribe and suffer its Ban as well as the one from your actual tribe. The Storyteller can prohibit this Flaw if the second Ban would cause problems for, or lack impact in, the chronicle." }
+        { name: "Severe Addiction", cost: [2], summary: "Lose two dice from all pools when you did not indulge in your substance of choice during the last scene, except pools for actions that will immediately obtain said substance." },
+        { name: "Addiction", cost: [1], summary: "Lose one dice from all pools when you did not indulge in your substance of choice during the last scene, except pools for actions that will immediately obtain said substance." }
+    ]
+}
+
+// Supernatural Situations Merits & Flaws  
+export const supernaturalSituationsMeritsAndFlaws2: MeritsAndFlaws = {
+    title: "🌟 Supernatural Situations",
+    merits: [
+        { name: "Unseeming", cost: [1], summary: "You know the dangers of being identified as one of the Awakened and this allows you to adapt and hide your true nature. Supernatural Creatures and Mages alike have a hard time sensing the storm within. This may lead your adversaries to underestimate you but it is a handy way to slip through the cracks when stealth and subtlety is required." }
+    ],
+    flaws: [
+        { name: "Frail Existence", cost: [1], summary: "The price of having power is paid in blood. Part of your life force is trapped in the umbra after being bestowed with the powers you possess. You appear frail, weak, even older than you actually are. In addition your health has suffered, and you have one fewer box on your health tracker than you otherwise would." }
     ]
 }
 
@@ -76,17 +96,6 @@ export const otherMeritsAndFlaws: MeritsAndFlaws = {
     flaws: [
         { name: "Knowledge Hungry", cost: [1], summary: "Your character hungers to study a topic of your choice. When your character comes across books, tutorial videos, college seminars or other methods of learning about their chosen subject, make a Willpower test at Difficulty 3 to resist chasing their obsession." }
     ]
-}
-
-// Rites Merits
-export const ritesMerits: MeritsAndFlaws = {
-    title: "�️ Rites",
-    merits: [
-        { name: "Improviser", cost: [1], summary: "You suffer two dice less penalties for performing Rites in suboptimal conditions" },
-        { name: "Moot Caller", cost: [2], summary: "Select 5 social rites, you've mastered them. If allowed during a moot, you can assist in any rite so long as it is performed at a moot or substantially similar gathering of Garou." },
-        { name: "Rite Master", cost: [3], summary: "Add one die to any pools involving Rite knowledge or performance" }
-    ],
-    flaws: []
 }
 
 // Safe House Merits
@@ -106,22 +115,6 @@ export const substanceAbuseFlaws: MeritsAndFlaws = {
     flaws: [
         { name: "Addiction", cost: [1], summary: "Unless the action is to immediately gain their drug, lose one die to all pools if in the last scene they did not indulge on the drug of their choice." },
         { name: "Hopeless Addiction", cost: [2], summary: "Unless the action is to immediately gain their drug, lose two dice to all pools if in the last scene they did not indulge on the drug of their choice." }
-    ]
-}
-
-// Supernatural Situations Merits & Flaws
-export const supernaturalSituationsMeritsAndFlaws: MeritsAndFlaws = {
-    title: "🌙 Supernatural Situations",
-    merits: [
-        { name: "Moon-Quickened", cost: [1], summary: "The first time the character howls at the moon during any night, they restore one point of Superficial Willpower damage." },
-        { name: "Moon-Riled", cost: [3], summary: "The first time the character howls at the moon during any night, they gain an additional point of Rage." }
-    ],
-    flaws: [
-        { name: "Folkloric Bane", cost: [1], summary: "Take Aggravated Damage when touching a specific object. Examples: Holy water (as if fire), Weapon wielded by a devout believer in their faith, weapon adorned with moonstone or moonstone itself, etc" },
-        { name: "Folkloric Block", cost: [1], summary: "Must spend Willpower or move away from a specific object. Examples: Wolfbanes or other herbs with mystic properties, Holy symbols presented by a believer, silver brandished, etc" },
-        { name: "Folkloric Tell", cost: [1], summary: "The character bears an indicator that makes them appear unsettling to others, regardless if they associate it with werewolves or not. Those who feel the folkloric tell distrust them, reducing the character's dice pool by one for all Social tests other than Intimidation. Examples: People hear howls in their presence, their shadow looks wolf-like in human form and human-like in wolf form, etc" },
-        { name: "Crone's Curse", cost: [2], summary: "The character appears aged well past their prime and they have one box fewer on their health tracker than they should." },
-        { name: "Moon-Thrall", cost: [2], summary: "Whenever the character sees the moon for the first time of the night, they must change form to glabro or hispo with any required Rage checks made." }
     ]
 }
 
@@ -169,7 +162,7 @@ export const maskMeritsAndFlaws: MeritsAndFlaws = {
     ],
     flaws: [
         { name: "Serial Error", cost: [1], summary: "A mistake has been made in the characters background checks showing that they'd recently died, are on a dangerous watchlist, or otherwise likely to be called or detained by the police. This also applies to any database lookups on their identity." },
-        { name: "Person of Interest", cost: [2], summary: "The Garou has become a person of interest and with their biometrics and information having been logged as a potential terrorist in agency databases." }
+        { name: "Person of Interest", cost: [2], summary: "The Mage  has become a person of interest and with their biometrics and information having been logged as a potential terrorist in agency databases." }
     ]
 }
 
@@ -177,10 +170,10 @@ export const maskMeritsAndFlaws: MeritsAndFlaws = {
 export const mentorMeritsAndFlaws: MeritsAndFlaws = {
     title: "👨‍🏫 Mentor",
     merits: [
-        { name: "Mentor", cost: [1, 2, 3, 4, 5], summary: "Another Garou or pack of Garou who has taken the character under their wing." }
+        { name: "Mentor", cost: [1, 2, 3, 4, 5], summary: "Another Mage who has taken the character under their wing." }
     ],
     flaws: [
-        { name: "Adversary", cost: [1, 2, 3], summary: "A rival Garou who wants to do the Garou or their pack harm." }
+        { name: "Adversary", cost: [1, 2, 3], summary: "A rival Mage who wants to do the Mage or their pack harm." }
     ]
 }
 
@@ -195,55 +188,59 @@ export const resourcesMeritsAndFlaws: MeritsAndFlaws = {
     ]
 }
 
-// Spirit Pact Merits & Flaws
-export const spiritPactMeritsAndFlaws: MeritsAndFlaws = {
-    title: "👻 Spirit Pact",
+// Sanctum Merits & Flaws
+export const sanctumMeritsAndFlaws: MeritsAndFlaws = {
+    title: "🏠 Sanctum",
     merits: [
-        { name: "Spirit Pact", cost: [1, 2, 3, 4, 5], summary: "Loyal spirit who will aid the Garou." },
-        { name: "Host", cost: [1], summary: "The spirit has a physical body it hosts. Spirits without the Companion trait still must be summoned." },
-        { name: "Companion", cost: [2], summary: "The spirit can accompany the character whenever they go long as nothing prevents it such as spiritual wards. Without a physical host communication is restricted to the Umbra or other means." }
+        { name: "Sanctum", cost: [1, 2, 3], summary: "Sanctum represents a degree of security or distinction for one's domicile above and beyond a place to sleep and prepare meals. • Small Sanctum, but more secure and private (basement apartment, book store backroom, warehouse store room). •• Good size, security or privacy (single family home, converted storefront, secure sewer tunnel). ••• Very Large, secure, or private (compound outside of town, bank building, decommissioned subway station)." },
+        { name: "Hidden Armory", cost: [1, 2, 3], summary: "Each dot in this merit adds a stand of basic, mundane arms to your Sanctum's supply. You can only have an amount of dots on this merit equal to the amount of dots of your base sanctum." },
+        { name: "Panic Room", cost: [1, 2, 3], summary: "Your Sanctum has a dedicated locked place to house two individuals with a breach difficulty of 5. Each dot allows you to increase the panic room's occupancy to twice and raises its breach difficulty by 1 per dot. You can only have an amount of dots on this merit equal to the amount of dots of your base sanctum." },
+        { name: "Watchmen", cost: [1, 2, 3], summary: "Whether it's private security or criminal toughs, someone's guarding your Sanctum. If guards would be conspicuous here, buy this Merit cautiously. Note that the guards aren't themselves Mages, and are probably entirely unfamiliar with the supernatural. You can only have an amount of dots on this merit equal to the amount of dots of your base sanctum." },
+        { name: "Laboratory", cost: [1, 2, 3], summary: "Your sanctum has an equipped laboratory with a dedicated industrial sink, gas jet, reinforced floor, etc. Each dot of this Merit adds one to the dice pool for rolls related to one Science or Technology specialty. This Merit is not available in small sanctums. You can only have an amount of dots on this merit equal to the amount of dots of your base sanctum." },
+        { name: "Luxury", cost: [1, 2, 3], summary: "High-definition flat screens, designer furniture, memorable decor, or other distinctive details give you a two-dice bonus to Social tests dealing with guests in your sanctum. If you don't have at least three dots of Resources (•••), your décor was gained illegally. You can only have an amount of dots on this merit equal to the amount of dots of your base sanctum." },
+        { name: "Postern", cost: [1, 2, 3], summary: "Your sanctum has a rear exit, secret tunnel, grating in the cellar leading into the sewers, or other unobtrusive way out. For each dot of this Merit, add one die to your dice pools to evade or escape surveillance near your sanctum. You can only have an amount of dots on this merit equal to the amount of dots of your base sanctum." },
+        { name: "Security System", cost: [1, 2, 3], summary: "Your sanctum has a better-than-average security system. For each dot of this Merit, add one die to your dice pool to resist (or alert you to) unauthorized entry into your sanctum. You can only have an amount of dots on this merit equal to the amount of dots of your base sanctum." },
+        { name: "Surgery", cost: [1, 2, 3], summary: "Your sanctum has one room equipped as a field surgery or better. Add two dice to relevant dice pools, generally Medicine, for tests performed in your sanctum. This Merit is not available in small sanctums. You can only have an amount of dots on this merit equal to the amount of dots of your base sanctum." },
+        { name: "Warding", cost: [1, 2, 3], summary: "Your sanctum possesses some kind of magical ward barring supernatural forces. You may not be able to deactivate it, but it allows you to pass. Each dot of this Merit adds one to the dice pool to resist supernatural scrying, as well as whatever other entry the Storyteller allows it to prevent. The Storyteller may require you to possess Occult 3 or better to buy this Merit. You can only have an amount of dots on this merit equal to the amount of dots of your base sanctum." }
     ],
     flaws: [
-        { name: "Pact Condition", cost: [1], summary: "The pact requires performing or avoiding certain actions in exchange for aid. Failing to do so angers the spirits and it does not count as an ally until penance has been made." }
+        { name: "No Sanctum", cost: [1], summary: "You're not necessarily homeless but you have no expectation of security while 'at home'." },
+        { name: "Compromised", cost: [2], summary: "Your sanctum has been raided once before, perhaps even before it was yours. It probably appears on someone's watchlist. Invaders or spies can add two dice to their pool to penetrate or surveil your sanctum." },
+        { name: "Creepy", cost: [1], summary: "Your sanctum looks like the lair of the sorts of supernatural horrors. Unknowing neighbors might phone in a tip to the cops or just talk about the creepy place they saw. Your dice pools on Social tests to seduce or otherwise put human guests at ease while in your sanctum are at a two-dice penalty." },
+        { name: "Haunted", cost: [1], summary: "Your sanctum has a supernatural manifestation in it that you don't control or really even understand. It might have a ghost, but a Haunted sanctum could hold a dimensional portal, a cursed meteorite, or anything else you can't get rid of. The risk is that someone who does understand the manifestation could use it to breach your sanctum's security. The Storyteller defines any other effect of the haunting, imposing at least a relevant one-die penalty or bonus to affected pools used in the sanctum per dot of Haunted taken as a Flaw." }
     ]
 }
 
-// Backgrounds
-export const backgroundsData: BackgroundsData = {
-    title: "📚 Backgrounds",
-    backgrounds: [
-        { name: "Allies", cost: [1, 2, 3, 4, 5], summary: "Human or Garou who will help you" },
-        { name: "Ancestors", cost: [1, 2, 3, 4, 5], summary: "Guidance from ancestral spirits" },
-        { name: "Contacts", cost: [1, 2, 3, 4, 5], summary: "Network of information sources" },
-        { name: "Fate", cost: [1, 2, 3, 4, 5], summary: "Destiny guides and protects you" },
-        { name: "Fetish", cost: [1, 2, 3, 4, 5], summary: "Spirit-inhabited magical item" },
-        { name: "Kinfolk", cost: [1, 2, 3, 4, 5], summary: "Human or wolf relatives who know the truth" },
-        { name: "Mentor", cost: [1, 2, 3, 4, 5], summary: "Older Garou who teaches and guides you" },
-        { name: "Past Life", cost: [1, 2, 3, 4, 5], summary: "Memories from previous incarnations" },
-        { name: "Pure Breed", cost: [1, 2, 3, 4, 5], summary: "Strong connection to wolf or human ancestry" },
-        { name: "Resources", cost: [1, 2, 3, 4, 5], summary: "Wealth and material possessions" },
-        { name: "Rites", cost: [1, 2, 3, 4, 5], summary: "Knowledge of Garou rituals" },
-        { name: "Totem", cost: [1, 2, 3, 4, 5], summary: "Shared pack totem spirit" }
+// Status Merits & Flaws
+export const statusMeritsAndFlaws: MeritsAndFlaws = {
+    title: "🏆 Status",
+    merits: [
+        { name: "Status", cost: [1, 2, 3, 4, 5], summary: "You have something of a reputation and standing (earned or not) amongst local mages. • Known: An acknowledged mage, welcomed and seen as an up-and-comer. •• Respected: You have responsibilities now, and rookies look up to you. ••• Influential: You hold authority over part of your community. •••• Powerful: You have an estimable title in your community. ••••• Luminary: You sit at the table of power in the group, a paragon of your community." }
+    ],
+    flaws: [
+        { name: "Shunned", cost: [2], summary: "For some reason, you're completely loathed by one particular faction. You betrayed them, crossed a local leader, or even traded gunshots with them in the past. Members of this group will actively work against you if they can." },
+        { name: "Suspect", cost: [2], summary: "You're not good with this faction at all. You weaseled out of an agreement, crossed a line, or did something similar. You can try to stay out of sight and out of mind, but unless you somehow make amends, you suffer a two-dice penalty to all Social tests involving the offended faction." }
     ]
 }
 
 // Main merits and flaws array
 export const meritsAndFlaws: MeritsAndFlaws[] = [
-    alliesMeritsAndFlaws,
-    caernMeritsAndFlaws,
-    contactsMerits,
-    dayJobMerits,
-    fameMeritsAndFlaws,
     linguisticsMeritsAndFlaws,
     looksMeritsAndFlaws,
+    hedgeMagicMeritsAndFlaws,
+    psychologicalTraitsMeritsAndFlaws,
+    substanceAbuseMeritsAndFlaws,
+    supernaturalSituationsMeritsAndFlaws2,
+    alliesMeritsAndFlaws,
+    contactsMerits,
+    fameMeritsAndFlaws,
     maskMeritsAndFlaws,
     mentorMeritsAndFlaws,
-    mythicFlaws,
-    otherMeritsAndFlaws,
     resourcesMeritsAndFlaws,
-    ritesMerits,
+    sanctumMeritsAndFlaws,
+    statusMeritsAndFlaws,
+    otherMeritsAndFlaws,
     safeHouseMerits,
-    spiritPactMeritsAndFlaws,
     substanceAbuseFlaws,
-    supernaturalSituationsMeritsAndFlaws
+    dayJobMerits
 ]
