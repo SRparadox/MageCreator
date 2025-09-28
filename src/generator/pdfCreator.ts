@@ -1,7 +1,7 @@
 import { notifications } from "@mantine/notifications"
 import fontkit from "@pdf-lib/fontkit"
 import { PDFBool, PDFDocument, PDFFont, PDFForm, PDFName } from "pdf-lib"
-import { Character } from "../data/Character"
+import { Character, CraftPerk } from "../data/Character"
 import { tribes } from "../data/Tribes"
 import { SkillsKey, skillsKeySchema } from "../data/Skills"
 import { attributesKeySchema } from "../data/Attributes"
@@ -378,6 +378,38 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
         }
     })
 
+    // Crafts & Perks - Add to merits section or dedicated fields
+    const craftsAndPerks = character.craftsAndPerks || []
+    const meritsStartIndex = meritsAndFlaws.length
+    
+    craftsAndPerks.forEach(({ name, level, description, type }, i) => {
+        const fieldNum = meritsStartIndex + i + 1
+        const displayText = `${name} (${type === 'craft' ? 'Craft' : 'Perk'}): ${description}`
+        
+        try {
+            // Try to add to merit fields first
+            form.getTextField(`Merit${fieldNum}`).setText(displayText)
+            
+            // Fill in the level dots
+            for (let l = 1; l <= level; l++) {
+                try {
+                    form.getCheckBox(`Merit${fieldNum}-${l}`).check()
+                } catch (e) {
+                    // If checkbox doesn't exist, skip
+                }
+            }
+        } catch (e) {
+            // If merit fields are full, try alternative approaches
+            try {
+                // Try dedicated craft/perk fields if they exist
+                const craftPerkFieldName = type === 'craft' ? `Craft${i + 1}` : `Perk${i + 1}`
+                form.getTextField(craftPerkFieldName)?.setText(displayText)
+            } catch (e2) {
+                // If no dedicated fields exist, we'll add to notes section later
+            }
+        }
+    })
+
     // Touchstones & Convictions - Enhanced with all details
     const touchstonesText = (character.touchstones || []).map(({ name, description, conviction }) => 
         `${name}: ${conviction}\n${description}`
@@ -393,6 +425,30 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
         const tribe = tribes[tribeName as keyof typeof tribes]
         flavorAndBansText += `Tribe Flavor: ${tribe.favor}\n`
         flavorAndBansText += `Tribe Ban: ${tribe.ban}\n\n`
+    }
+    
+    // Add Crafts and Perks to notes as fallback/additional info
+    if (craftsAndPerks.length > 0) {
+        flavorAndBansText += "=== CRAFTS & PERKS ===\n"
+        
+        const craftsList = craftsAndPerks.filter(item => item.type === 'craft')
+        const perksList = craftsAndPerks.filter(item => item.type === 'perk')
+        
+        if (craftsList.length > 0) {
+            flavorAndBansText += "\nCRAFTS:\n"
+            craftsList.forEach(craft => {
+                flavorAndBansText += `• ${craft.name} (Level ${craft.level}): ${craft.description}\n`
+            })
+        }
+        
+        if (perksList.length > 0) {
+            flavorAndBansText += "\nPERKS:\n"
+            perksList.forEach(perk => {
+                flavorAndBansText += `• ${perk.name} (Level ${perk.level}): ${perk.description}\n`
+            })
+        }
+        
+        flavorAndBansText += "\n"
     }
     
     // Map specific fields according to PDF structure
