@@ -2,12 +2,11 @@ import { notifications } from "@mantine/notifications"
 import fontkit from "@pdf-lib/fontkit"
 import { PDFBool, PDFDocument, PDFFont, PDFForm, PDFName } from "pdf-lib"
 import { Character, CraftPerk } from "../data/Character"
-import { tribes } from "../data/Tribes"
 import { SkillsKey, skillsKeySchema } from "../data/Skills"
 import { attributesKeySchema } from "../data/Attributes"
 import { Power, Ritual } from "../data/Disciplines"
 import { Gift } from "../data/Gifts"
-import base64Pdf_werewolf from "../resources/WtA5e_ENG_Sheet_2pMINI.base64?raw"
+import base64Pdf_mage from "../resources/magesheet.base64?raw"
 import { upcase } from "./utils"
 import { DisciplineName } from "~/data/NameSchemas"
 
@@ -35,20 +34,18 @@ export const testTemplate = async (basePdf: string) => {
     }
     try {
         form.getTextField("Name").setText("")
-        // Try werewolf fields first, fallback to vampire fields for compatibility
+        // Try mage fields first
         try {
-            form.getTextField("Auspice").setText("")
             form.getTextField("Player").setText("")
-            form.getTextField("Tribe").setText("")
+            form.getTextField("Coven").setText("")
             form.getTextField("Chronicle").setText("")
-            form.getTextField("Patron").setText("")
         } catch (e) {
-            // Werewolf fields don't exist in this PDF
+            // Mage fields don't exist in this PDF
         }
     } catch (err) {
         return {
             success: false,
-            error: new Error("PDF doesn't contain required fields - is it the correct Werewolf character sheet?"),
+            error: new Error("PDF doesn't contain required fields - is it the correct Mage character sheet?"),
         }
     }
 
@@ -65,7 +62,7 @@ const downloadPdf = (fileName: string, bytes: Uint8Array) => {
 }
 
 const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => {
-    const bytes = base64ToArrayBuffer(base64Pdf_werewolf)
+    const bytes = base64ToArrayBuffer(base64Pdf_mage)
 
     const pdfDoc = await initPDFDocument(bytes)
     const form = pdfDoc.getForm()
@@ -161,7 +158,7 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
             setSpecialty(skill, `spec${upcase(skill).slice(0, 4)}`)
         })
 
-    // Health - Werewolf health calculation
+    // Health - Standard calculation
     const health = 3 + character.attributes["stamina"]
     for (let i = 1; i <= health; i++) {
         form.getCheckBox(`Health-${i}`).check()
@@ -173,111 +170,78 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
         form.getCheckBox(`WP-${i}`).check()
     }
 
-    // Rage (Werewolf stat)
-    const rage = character.rage || 1
-    for (let i = 1; i <= rage; i++) {
-        try {
-            form.getCheckBox(`Rage-${i}`).check()
-        } catch (e) {
-            // If Rage fields don't exist in PDF, skip
-        }
+    // Spheres (Mage magic system)
+    if (character.spheres) {
+        const sphereNames = ["correspondence", "entropy", "forces", "life", "matter", "mind", "prime", "spirit", "time"] as const
+        
+        sphereNames.forEach((sphereName) => {
+            const sphereLevel = character.spheres![sphereName]
+            for (let i = 1; i <= sphereLevel; i++) {
+                try {
+                    // Try different possible field name patterns for spheres
+                    const capitalizedSphere = sphereName.charAt(0).toUpperCase() + sphereName.slice(1)
+                    form.getCheckBox(`${capitalizedSphere}-${i}`)?.check() ||
+                    form.getCheckBox(`Sphere_${capitalizedSphere}-${i}`)?.check() ||
+                    form.getCheckBox(`${sphereName}-${i}`)?.check()
+                } catch (e) {
+                    // If sphere fields don't exist in PDF, skip
+                }
+            }
+        })
     }
 
-    // Gnosis (Werewolf stat) 
-    const gnosis = character.gnosis || 1
-    for (let i = 1; i <= gnosis; i++) {
-        try {
-            form.getCheckBox(`Gnosis-${i}`).check()
-        } catch (e) {
-            // If Gnosis fields don't exist in PDF, skip
-        }
-    }
-
-    // Top fields - Werewolf character info
+    // Top fields - Mage character info
     // Name
     form.getTextField("Name").setText(character.name)
-    
-    // Auspice
-    const auspiceName = character.auspice
-    try {
-        form.getTextField("Auspice")?.setText(auspiceName || "")
-    } catch (e) {
-        // Auspice field doesn't exist in this PDF
-    }
     
     // Player Name
     try {
         form.getTextField("Player")?.setText(character.playerName || "")
     } catch (e) {
         // Fallback if Player field doesn't exist
-        form.getTextField("pcDescription")?.setText(character.playerName || "")
+        try {
+            form.getTextField("PlayerName")?.setText(character.playerName || "")
+        } catch (e2) {
+            form.getTextField("pcDescription")?.setText(character.playerName || "")
+        }
     }
     
-    // Tribe
-    const tribeName = character.tribe || character.clan
+    // Coven
+    const covenName = character.coven
     try {
-        form.getTextField("Tribe")?.setText(tribeName)
+        form.getTextField("Coven")?.setText(covenName || "")
     } catch (e) {
-        form.getTextField("Clan")?.setText(tribeName)
+        // Try alternative field names
+        try {
+            form.getTextField("Faction")?.setText(covenName || "")
+        } catch (e2) {
+            form.getTextField("Organization")?.setText(covenName || "")
+        }
     }
     
     // Chronicle
     try {
-        form.getTextField("Chronicle").setText(character.chronicle || "")
+        form.getTextField("Chronicle")?.setText(character.chronicle || "")
     } catch (e) {
         // Chronicle field doesn't exist in this PDF
     }
     
-    // Patron (from tribe data)
-    let patronName = ""
-    if (tribeName && tribes[tribeName as keyof typeof tribes]) {
-        const tribe = tribes[tribeName as keyof typeof tribes]
-        patronName = tribe.patron || ""
-    }
+    // Concept (mage-specific field)
     try {
-        form.getTextField("Patron")?.setText(patronName)
+        form.getTextField("Concept")?.setText(character.concept || "")
     } catch (e) {
-        // Patron field doesn't exist in this PDF
-    }
-    
-    // For werewolf, we use ban and favor instead of bane and compulsion
-    if (tribeName && tribes[tribeName as keyof typeof tribes]) {
-        const tribe = tribes[tribeName as keyof typeof tribes]
-        const banText = tribe.ban
-        const favorText = tribe.favor
-        const patronText = tribe.patron || ""
-        
-        // Try to set tribe-specific fields, fall back to clan fields if werewolf sheet doesn't have them yet
-        try {
-            form.getTextField("TribeBan")?.setText(banText)
-            form.getTextField("TribeFavor")?.setText(favorText)
-            form.getTextField("Patron")?.setText(patronText)
-        } catch (e) {
-            // Fallback to original clan fields if werewolf sheet isn't ready
-            try {
-                form.getTextField("ClanBane")?.setText(banText)
-                form.getTextField("ClanCompulsion")?.setText(favorText)
-            } catch (e2) {
-                // If neither work, just continue
-            }
-        }
-        
-        // Try to set renown information
-        try {
-            const renownField = `${tribe.renownType}Renown`
-            const existingRenown = form.getTextField(renownField)?.getText() || "0"
-            const newRenown = parseInt(existingRenown) + tribe.renownDots
-            form.getTextField(renownField)?.setText(newRenown.toString())
-        } catch (e) {
-            // If renown fields don't exist yet, continue
-        }
+        // Concept field doesn't exist in this PDF
     }
 
-    // Pack info
+    // Affinity Sphere
     try {
-        form.getTextField("Pack").setText(character.pack || "")
+        form.getTextField("AffinitySphere")?.setText(character.affinitySphere || "")
     } catch (e) {
-        // Pack field doesn't exist in this PDF
+        try {
+            form.getTextField("Affinity")?.setText(character.affinitySphere || "")
+        } catch (e2) {
+            // Affinity sphere field doesn't exist in this PDF
+        }
     }
 
     // Gifts and Rites - using new field naming pattern
@@ -417,89 +381,98 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
     
     form.getTextField("Convictions").setText(touchstonesText)
 
-    // Flavor and Bans - Add to touchstoneNotes field
-    let flavorAndBansText = ""
+    // Additional character details for notes field
+    let additionalDetailsText = ""
     
-    // Add tribe flavor and ban
-    if (tribeName && tribes[tribeName as keyof typeof tribes]) {
-        const tribe = tribes[tribeName as keyof typeof tribes]
-        flavorAndBansText += `Tribe Flavor: ${tribe.favor}\n`
-        flavorAndBansText += `Tribe Ban: ${tribe.ban}\n\n`
+    // Add coven information if available
+    if (covenName) {
+        additionalDetailsText += `Coven: ${covenName}\n\n`
     }
     
     // Add Crafts and Perks to notes as fallback/additional info
     if (craftsAndPerks.length > 0) {
-        flavorAndBansText += "=== CRAFTS & PERKS ===\n"
+        additionalDetailsText += "=== CRAFTS & PERKS ===\n"
         
-        const craftsList = craftsAndPerks.filter(item => item.type === 'craft')
-        const perksList = craftsAndPerks.filter(item => item.type === 'perk')
+        const craftsList = craftsAndPerks.filter((item: any) => item.type === 'craft')
+        const perksList = craftsAndPerks.filter((item: any) => item.type === 'perk')
         
         if (craftsList.length > 0) {
-            flavorAndBansText += "\nCRAFTS:\n"
-            craftsList.forEach(craft => {
-                flavorAndBansText += `• ${craft.name} (Level ${craft.level}): ${craft.description}\n`
+            additionalDetailsText += "\nCRAFTS:\n"
+            craftsList.forEach((craft: any) => {
+                additionalDetailsText += `• ${craft.name} (Level ${craft.level}): ${craft.description}\n`
             })
         }
         
         if (perksList.length > 0) {
-            flavorAndBansText += "\nPERKS:\n"
-            perksList.forEach(perk => {
-                flavorAndBansText += `• ${perk.name} (Level ${perk.level}): ${perk.description}\n`
+            additionalDetailsText += "\nPERKS:\n"
+            perksList.forEach((perk: any) => {
+                additionalDetailsText += `• ${perk.name} (Level ${perk.level}): ${perk.description}\n`
             })
         }
         
-        flavorAndBansText += "\n"
+        additionalDetailsText += "\n"
     }
     
     // Map specific fields according to PDF structure
     
-    // Appearance goes to sge field and also to pcDescription
-    try {
-        form.getTextField("sge")?.setText(character.appearance || "")
-    } catch (e) {
-        // Fallback if sge doesn't exist
-        if (character.appearance) {
-            flavorAndBansText += `Appearance:\n${character.appearance}\n\n`
-        }
-    }
+    // Map specific fields according to PDF structure
     
-    // Also put appearance in pcDescription
+    // Appearance
     try {
-        form.getTextField("pcDescription")?.setText(character.appearance || "")
+        form.getTextField("Appearance")?.setText(character.appearance || "")
     } catch (e) {
-        // pcDescription doesn't exist
-    }
-    
-    // History goes to pcConcept field
-    try {
-        form.getTextField("pcConcept")?.setText(character.history || "")
-    } catch (e) {
-        // Fallback if pcConcept doesn't exist
-        if (character.history) {
-            flavorAndBansText += `History:\n${character.history}\n\n`
-        }
-    }
-    
-    // Notes goes to PC_Notes field
-    try {
-        form.getTextField("PC_Notes")?.setText(character.notes || "")
-    } catch (e) {
-        // Fallback if PC_Notes doesn't exist
-        if (character.notes) {
-            flavorAndBansText += `Character Notes:\n${character.notes}\n\n`
-        }
-    }
-    
-    try {
-        form.getTextField("touchstoneNotes")?.setText(flavorAndBansText.trim())
-    } catch (e) {
-        // If touchstoneNotes doesn't exist, try alternative field names
         try {
-            form.getTextField("Notes")?.setText(flavorAndBansText.trim())
+            form.getTextField("pcDescription")?.setText(character.appearance || "")
         } catch (e2) {
-            // If no notes field exists, append to convictions
-            const combinedText = touchstonesText + (flavorAndBansText ? `\n\n--- Additional Info ---\n${flavorAndBansText.trim()}` : "")
-            form.getTextField("Convictions").setText(combinedText)
+            // Fallback if appearance field doesn't exist
+            if (character.appearance) {
+                additionalDetailsText += `Appearance:\n${character.appearance}\n\n`
+            }
+        }
+    }
+    
+    // History
+    try {
+        form.getTextField("History")?.setText(character.history || "")
+    } catch (e) {
+        try {
+            form.getTextField("pcConcept")?.setText(character.history || "")
+        } catch (e2) {
+            // Fallback if History field doesn't exist
+            if (character.history) {
+                additionalDetailsText += `History:\n${character.history}\n\n`
+            }
+        }
+    }
+    
+    // Notes
+    try {
+        form.getTextField("Notes")?.setText(character.notes || "")
+    } catch (e) {
+        try {
+            form.getTextField("PC_Notes")?.setText(character.notes || "")
+        } catch (e2) {
+            // Fallback if Notes field doesn't exist
+            if (character.notes) {
+                additionalDetailsText += `Character Notes:\n${character.notes}\n\n`
+            }
+        }
+    }
+    
+    // Set additional details in appropriate notes field
+    try {
+        form.getTextField("AdditionalNotes")?.setText(additionalDetailsText.trim())
+    } catch (e) {
+        try {
+            form.getTextField("touchstoneNotes")?.setText(additionalDetailsText.trim())
+        } catch (e2) {
+            try {
+                form.getTextField("Notes")?.setText(additionalDetailsText.trim())
+            } catch (e3) {
+                // If no notes field exists, append to convictions
+                const combinedText = touchstonesText + (additionalDetailsText ? `\n\n--- Additional Info ---\n${additionalDetailsText.trim()}` : "")
+                form.getTextField("Convictions").setText(combinedText)
+            }
         }
     }
 
@@ -521,13 +494,13 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
 export const downloadCharacterSheet = async (character: Character) => {
     const pdfBytes = await createPdf_nerdbert(character)
     notifications.show({
-        title: "PDF base kindly provided by Nerdbert!",
-        message: "https://linktr.ee/nerdbert",
+        title: "Mage Character Sheet Generated!",
+        message: "Your mage character sheet is ready for download.",
         autoClose: 10000,
         color: "grape",
     })
 
-    downloadPdf(`firstchange_${character.name}.pdf`, pdfBytes)
+    downloadPdf(`mage_${character.name}.pdf`, pdfBytes)
 }
 
 function base64ToArrayBuffer(base64: string) {
@@ -544,7 +517,7 @@ const getFields = (form: PDFForm): Record<string, string> => {
     const fields = form.getFields()
 
     const outFields: Record<string, string> = {}
-    fields.forEach((field) => {
+    fields.forEach((field: any) => {
         const type = field.constructor.name
         const name = field.getName()
 
@@ -555,7 +528,7 @@ const getFields = (form: PDFForm): Record<string, string> => {
 }
 
 export const printFieldNames = async () => {
-    const basePdf = base64Pdf_werewolf
+    const basePdf = base64Pdf_mage
     const bytes = base64ToArrayBuffer(basePdf)
 
     const pdfDoc = await initPDFDocument(bytes)

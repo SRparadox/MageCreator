@@ -89,3 +89,9 @@ declare module 'react/jsx-dev-runtime' {
   export const jsxs: any
   export const Fragment: any
 }
+
+// Declare raw file imports
+declare module '*.base64?raw' {
+  const content: string
+  export default content
+}
