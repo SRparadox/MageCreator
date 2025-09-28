@@ -34,7 +34,7 @@ export const testTemplate = async (basePdf: string) => {
         // Try mage fields
         try {
             form.getTextField("Player").setText("")
-            form.getTextField("Conven").setText("")
+            form.getTextField("Coven").setText("")
             form.getTextField("Chronicle").setText("")
             form.getTextField("Concept").setText("")
             form.getTextField("Affinity").setText("")
@@ -208,8 +208,8 @@ const createPdf_nerdbert = async (character: Character): Promise<Uint8Array> => 
     // Affinity Sphere
     form.getTextField("Affinity").setText(character.affinitySphere || "")
     
-    // Coven (note: field is "Conven" not "Coven")
-    form.getTextField("Conven").setText(character.coven || "")
+    // Coven
+    form.getTextField("Coven").setText(character.coven || "")
 
     // Gifts and Rites - using new field naming pattern
 
