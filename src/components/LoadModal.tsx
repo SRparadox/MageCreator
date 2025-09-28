@@ -18,7 +18,31 @@ export type LoadModalProps = {
 
 const LoadModal = ({ loadModalOpened, closeLoadModal, setCharacter, loadedFile }: LoadModalProps) => {
     return (
-        <Modal opened={loadModalOpened} onClose={closeLoadModal} title="" centered withCloseButton={false}>
+        <Modal 
+            opened={loadModalOpened} 
+            onClose={closeLoadModal} 
+            title="" 
+            centered 
+            withCloseButton={false}
+            overlayProps={{
+                backgroundOpacity: 0.55,
+                blur: 3,
+            }}
+            styles={{
+                content: {
+                    backgroundColor: 'var(--mantine-color-body)',
+                },
+                body: {
+                    backgroundColor: 'var(--mantine-color-body)',
+                },
+                header: {
+                    backgroundColor: 'var(--mantine-color-body)',
+                },
+                inner: {
+                    backgroundColor: 'transparent',
+                },
+            }}
+        >
             <Stack>
                 <Text fz={"xl"} ta={"center"}>
                     Overwrite current character and load from selected file?

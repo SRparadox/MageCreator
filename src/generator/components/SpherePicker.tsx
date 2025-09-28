@@ -67,7 +67,7 @@ const SpherePicker = ({ character, setCharacter, nextStep }: SpherePickerProps) 
     }
 
     const getSphereImage = (sphereName: string) => {
-        return `/src/resources/spheres/${sphereName}.webp`
+        return `./spheres/${sphereName}.webp`
     }
 
     const getSphereByName = (name: string): Sphere | undefined => {
@@ -124,6 +124,10 @@ const SpherePicker = ({ character, setCharacter, nextStep }: SpherePickerProps) 
                 radius="md"
                 withBorder
                 h="100%"
+                style={{
+                    backgroundColor: 'var(--mantine-color-body)',
+                    opacity: 1,
+                }}
             >
                 <Stack align="center" gap="md" h="100%">
                     <Image

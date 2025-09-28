@@ -12,7 +12,31 @@ export type ResetModalProps = {
 
 const ResetModal = ({ resetModalOpened, closeResetModal, setCharacter, setSelectedStep }: ResetModalProps) => {
     return (
-        <Modal opened={resetModalOpened} onClose={closeResetModal} title="" centered withCloseButton={false}>
+        <Modal 
+            opened={resetModalOpened} 
+            onClose={closeResetModal} 
+            title="" 
+            centered 
+            withCloseButton={false}
+            overlayProps={{
+                backgroundOpacity: 0.55,
+                blur: 3,
+            }}
+            styles={{
+                content: {
+                    backgroundColor: 'var(--mantine-color-body)',
+                },
+                body: {
+                    backgroundColor: 'var(--mantine-color-body)',
+                },
+                header: {
+                    backgroundColor: 'var(--mantine-color-body)',
+                },
+                inner: {
+                    backgroundColor: 'transparent',
+                },
+            }}
+        >
             <Stack>
                 <Text fz={"xl"} ta="center">
                     Reset current character?

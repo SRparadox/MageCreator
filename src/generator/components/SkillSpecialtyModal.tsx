@@ -67,6 +67,15 @@ export const SpecialtyModal = ({
                 content: {
                     backgroundColor: 'var(--mantine-color-body)',
                 },
+                body: {
+                    backgroundColor: 'var(--mantine-color-body)',
+                },
+                header: {
+                    backgroundColor: 'var(--mantine-color-body)',
+                },
+                inner: {
+                    backgroundColor: 'transparent',
+                },
             }}
             title={
                 <div>
