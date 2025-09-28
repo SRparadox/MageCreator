@@ -104,3 +104,26 @@ export const predatorTypeNameSchema = z.union([
     z.literal(""),
 ])
 export type PredatorTypeName = z.infer<typeof predatorTypeNameSchema>
+
+export const covenNameSchema = z.union([
+    z.literal("independent"),
+    z.literal("marauder"), 
+    z.literal("technocracy"),
+    z.literal("traditions"),
+    z.literal(""),
+])
+export type CovenName = z.infer<typeof covenNameSchema>
+
+export const sphereNameSchema = z.union([
+    z.literal("correspondence"),
+    z.literal("entropy"), 
+    z.literal("forces"),
+    z.literal("life"),
+    z.literal("matter"),
+    z.literal("mind"),
+    z.literal("prime"),
+    z.literal("spirit"),
+    z.literal("time"),
+    z.literal(""),
+])
+export type SphereName = z.infer<typeof sphereNameSchema>

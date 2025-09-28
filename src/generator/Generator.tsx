@@ -11,7 +11,11 @@ import Intro from "./components/Intro"
 import MeritsAndFlawsPicker from "./components/MeritsAndFlawsPicker"
 
 import SkillsPicker from "./components/SkillsPicker"
+import MageSkillsPicker from "./components/MageSkillsPicker"
 import TouchstonePicker from "./components/TouchstonePicker"
+import CovenPicker from "./components/CovenPicker"
+import SpherePicker from "./components/SpherePicker"
+import CraftsAndPerksPicker from "./components/CraftsAndPerksPicker"
 import ErrorBoundary from "../components/ErrorBoundary"
 
 export type GeneratorProps = {
@@ -36,7 +40,7 @@ const Generator = ({ character, setCharacter, selectedStep, setSelectedStep }: G
                 )
             case 1:
                 return (
-                    <TribePicker
+                    <CovenPicker
                         character={character}
                         setCharacter={setCharacter}
                         nextStep={() => {
@@ -56,7 +60,7 @@ const Generator = ({ character, setCharacter, selectedStep, setSelectedStep }: G
                 )
             case 3:
                 return (
-                    <SkillsPicker
+                    <MageSkillsPicker
                         character={character}
                         setCharacter={setCharacter}
                         nextStep={() => {
@@ -66,7 +70,7 @@ const Generator = ({ character, setCharacter, selectedStep, setSelectedStep }: G
                 )
             case 4:
                 return (
-                    <AuspicePicker
+                    <BasicsPicker
                         character={character}
                         setCharacter={setCharacter}
                         nextStep={() => {
@@ -76,7 +80,7 @@ const Generator = ({ character, setCharacter, selectedStep, setSelectedStep }: G
                 )
             case 5:
                 return (
-                    <BasicsPicker
+                    <SpherePicker
                         character={character}
                         setCharacter={setCharacter}
                         nextStep={() => {
@@ -86,7 +90,7 @@ const Generator = ({ character, setCharacter, selectedStep, setSelectedStep }: G
                 )
             case 6:
                 return (
-                    <GiftsPicker
+                    <MeritsAndFlawsPicker
                         character={character}
                         setCharacter={setCharacter}
                         nextStep={() => {
@@ -96,7 +100,7 @@ const Generator = ({ character, setCharacter, selectedStep, setSelectedStep }: G
                 )
             case 7:
                 return (
-                    <RitesPicker
+                    <CraftsAndPerksPicker
                         character={character}
                         setCharacter={setCharacter}
                         nextStep={() => {
@@ -105,26 +109,6 @@ const Generator = ({ character, setCharacter, selectedStep, setSelectedStep }: G
                     />
                 )
             case 8:
-                return (
-                    <TouchstonePicker
-                        character={character}
-                        setCharacter={setCharacter}
-                        nextStep={() => {
-                            setSelectedStep(selectedStep + 1)
-                        }}
-                    />
-                )
-            case 9:
-                return (
-                    <MeritsAndFlawsPicker
-                        character={character}
-                        setCharacter={setCharacter}
-                        nextStep={() => {
-                            setSelectedStep(selectedStep + 1)
-                        }}
-                    />
-                )
-            case 10:
                 return <Final character={character} setCharacter={setCharacter} setSelectedStep={setSelectedStep} />
             default:
                 return <Text size={"xl"}>{`Error: Step ${selectedStep} is not implemented`}</Text>

@@ -4,7 +4,8 @@ import { riteSchema } from "./Rites"
 import { specialtySchema } from "./Specialties"
 import { skillsSchema } from "./Skills"
 import { attributesSchema } from "./Attributes"
-import { tribeNameSchema, auspiceNameSchema, giftNameSchema } from "./NameSchemas"
+import { tribeNameSchema, auspiceNameSchema, giftNameSchema, covenNameSchema, sphereNameSchema } from "./NameSchemas"
+import { spheresSchema } from "./Spheres"
 
 export const meritFlawSchema = z.object({
     name: z.string(),
@@ -21,6 +22,14 @@ export const touchstoneSchema = z.object({
 })
 export type Touchstone = z.infer<typeof touchstoneSchema>
 
+export const craftPerkSchema = z.object({
+    name: z.string(),
+    type: z.union([z.literal("craft"), z.literal("perk")]),
+    level: z.number().min(1).int(),
+    description: z.string(),
+})
+export type CraftPerk = z.infer<typeof craftPerkSchema>
+
 export const characterSchema = z.object({
     name: z.string(),
     playerName: z.string().optional(), // New field for player name
@@ -35,6 +44,12 @@ export const characterSchema = z.object({
     // Werewolf 5e specific fields
     tribe: tribeNameSchema, // Replaces 'clan'
     auspice: auspiceNameSchema, // Replaces 'predatorType'
+    
+    // Mage specific fields
+    coven: covenNameSchema.optional(),
+    spheres: spheresSchema.optional(),
+    affinitySphere: sphereNameSchema.optional(),
+    craftsAndPerks: craftPerkSchema.array().optional(),
     
     // Temporary compatibility - will be removed later
     clan: tribeNameSchema, // For backward compatibility, maps to tribe
@@ -100,6 +115,22 @@ export const getEmptyCharacter = (): Character => {
         // Werewolf fields
         tribe: "",
         auspice: "",
+        
+        // Mage fields
+        coven: "",
+        spheres: {
+            correspondence: 0,
+            entropy: 0,
+            forces: 0,
+            life: 0,
+            matter: 0,
+            mind: 0,
+            prime: 0,
+            spirit: 0,
+            time: 0,
+        },
+        affinitySphere: "",
+        craftsAndPerks: [],
         
         // Backward compatibility
         clan: "",
